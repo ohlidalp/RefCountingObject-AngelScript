@@ -99,6 +99,10 @@ Documentation:
 xPtr can only be constructed in C++, it's never registered with AngelScript. Since RefCountingObject
 is constructed with refcount=1, the xPtr doesn't increase the refcount when initialized/assigned.
 
+xPtr derives from xHandle which requires asITypeInfo. To be able to construct it in C++
+without active script context, the type info is stored in the RefCountingObject itself.
+It is loaded when calling `RegisterRefCountingObject()`.
+
 Using xHandle in the registered function signatures relies on xHandle and xPtr being binary-compatible,
 so the AngelScript engine type-puns the xHandle to/from xPtr.
 This probably relies on UB (=undefined behavior) somehow, but it's too convenient to dismiss.
