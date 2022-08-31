@@ -1,26 +1,28 @@
 
 # RefCountingObject system for AngelScript
 
-_Created by Petr Ohlidal_
+_Created by Petr Ohlídal_
 
 This mini-framework lets you use a single reference counting mechanism for both
 AngelScript's built-in garbage collection and C++ smart pointers. This allows you to fluently
-pass objects from/to script context(s) without caring who created the object and where may
+pass objects between C++ and script context(s) without caring who created the object and where may
 references be held.
 
 ## Motivation
 
-I maintain [a game project](www.rigsofrods.org) where AngelScript is an optional dependency
+I maintain [a game project](https://github.com/RigsOfRods/rigs-of-rods)
+where AngelScript is an optional dependency
 but at the same time plays an important gameplay role.
 I wanted to expand the scripting interface by exposing
-the internal objects and interfaces as directly as possible, but I didn't want to do
+the internal objects and functions as directly as possible, but I didn't want to do
 AngelScript refcounting manually on the C++ side.
 I wanted a classic C++ smart pointer (like `std::shared_ptr<>`) that would do it for me,
 and which would remain fully functional for C++ even if built without AngelScript.
 
 ## How to use
 
-To install, just copy the "gc" subdirectory to your project.
+To install, just copy the 'RefCountingObject\*' files to your project.
+Presently, you'll also need 'Testbed/debug_log.h', I'll improve on that.
 
 Define your C++ classes by implementing `RefCountingObject`
 and calling `RegisterRefCountingObject()` for each type.
