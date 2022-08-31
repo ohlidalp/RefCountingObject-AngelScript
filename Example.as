@@ -1,10 +1,10 @@
 float calc(float a, float b)
 {
     Print("# creating refcounted object\n");
-    Dog@ ref1 = Dog();
+    Horse@ ref1 = Horse('Jurasek');
     
     Print("# adding ref\n");
-    Dog@ ref2 = ref1;
+    Horse@ ref2 = ref1;
     
     Print("# removing ref\n");
     @ref2 = null;
@@ -14,12 +14,6 @@ float calc(float a, float b)
     
     Print("# creating ref horse\n");
     Horse@ ho = Horse("Semik");
-    
-    Print("# putting ref horse to stable\n");
-    PutToStable(ho);
-
-    Print("# Dump horse from stable\n");
-    PutToStable(null);
     
     Print("# putting ref horse to stable via implicitly-constructed Handle object\n");
     PutToStableViaHandle(ho);    
@@ -55,16 +49,16 @@ float calc(float a, float b)
     @rcoh_horse = null;
 
     Print("# putting unreferenced horse to stable\n");
-    PutToStable(Horse("Rossinante"));
+    PutToStableViaHandle(Horse("Rossinante"));
     
     Print("# putting another unref horse to stable\n");
-    PutToStable(Horse("Jolly Jumper")); 
+    PutToStableViaHandle(Horse("Jolly Jumper")); 
 
     Print("# fetching horse back from stable\n");
-    @ho = FetchFromStable();
+    @ho = cast<Horse>(FetchFromStableViaHandle());
     
     Print("# Dump horse from stable\n");
-    PutToStable(null);
+    PutToStableViaHandle(null);
     
     Print("# Erase local horse ref\n");
     @ho = null;    

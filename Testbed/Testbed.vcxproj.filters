@@ -13,9 +13,6 @@
     <ClInclude Include="debug_log.h">
       <Filter>testbed</Filter>
     </ClInclude>
-    <ClInclude Include="dog.h">
-      <Filter>testbed</Filter>
-    </ClInclude>
     <ClInclude Include="horse.h">
       <Filter>testbed</Filter>
     </ClInclude>
@@ -42,5 +39,6 @@
     <ClCompile Include="..\RefCountingObjectHandle.cpp">
       <Filter>RefCountingObject</Filter>
     </ClCompile>
+    <ClCompile Include="..\Example.cpp" />
   </ItemGroup>
 </Project>

@@ -13,10 +13,6 @@
 #include <angelscript.h>
 #include "scriptstdstring.h"
 
-#include "dog.h"
-#include "horse.h"
-#include "../RefCountingObjectHandle.h"
-
 using namespace std;
 
 #ifdef __linux__
@@ -63,6 +59,9 @@ void PrintString(string &str);
 void PrintString_Generic(asIScriptGeneric *gen);
 void timeGetTime_Generic(asIScriptGeneric *gen);
 void LineCallback(asIScriptContext *ctx, DWORD *timeOut);
+
+// Function prototypes implemented in "example.cpp"
+void ExampleCpp(asIScriptEngine *engine);
 
 int main(int argc, char **argv)
 {
@@ -246,10 +245,7 @@ void ConfigureEngine(asIScriptEngine *engine)
 	// the engine, so that the engine configuration could be changed 
 	// without having to recompile all the scripts.
 
-	RegisterRefCountingObjectHandle(engine);
-	RegisterDog(engine);
-	RegisterHorse(engine);
-	TestHorse();
+	ExampleCpp(engine);
 }
 
 int CompileScript(asIScriptEngine *engine)
@@ -258,10 +254,10 @@ int CompileScript(asIScriptEngine *engine)
 
 	// We will load the script from a file on the disk.
 	FILE *f = nullptr;
-	fopen_s(&f, "test.as", "rb");
+	fopen_s(&f, "../Example.as", "rb");
 	if( f == 0 )
 	{
-		std::cout << "Failed to open the script file 'script.as'." << std::endl;
+		std::cout << "Failed to open the script file." << std::endl;
 		return -1;
 	}
 

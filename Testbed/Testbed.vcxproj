@@ -154,11 +154,11 @@
     <ClInclude Include="..\RefCountingObjectHandle.h" />
     <ClInclude Include="..\RefCountingObjectPtr.h" />
     <ClInclude Include="debug_log.h" />
-    <ClInclude Include="dog.h" />
     <ClInclude Include="horse.h" />
     <ClInclude Include="scriptstdstring.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Example.cpp" />
     <ClCompile Include="..\RefCountingObjectHandle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="scriptstdstring.cpp" />

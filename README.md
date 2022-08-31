@@ -75,7 +75,11 @@ Foo@ f2 = cast<Foo>(GetFoo());  // refcount 3
 SetFoo(null);                   // refcount 0 -> deleted.
 ```
 
-## How the AngelScript refcounting works
+## How it works
+
+Weakly sorted notes from learning AngelScript mechanics and designing this library.
+
+### How the AngelScript refcounting works
 
  Intuitively, you would call AddRef() every time you obtain a raw pointer to the object, 
  i.e. when creating a new object or retrieving one from script engine. Well, don't.
@@ -89,4 +93,13 @@ SetFoo(null);                   // refcount 0 -> deleted.
 Documentation: 
    https://www.angelcode.com/angelscript/sdk/docs/manual/doc_as_vs_cpp_types.html#doc_as_vs_cpp_types_3
    https://www.angelcode.com/angelscript/sdk/docs/manual/doc_obj_handle.html#doc_obj_handle_3
+   
+### How RefCountingObject fits into it
+
+xPtr can only be constructed in C++, it's never registered with AngelScript. Since RefCountingObject
+is constructed with refcount=1, the xPtr doesn't increase the refcount when initialized/assigned.
+
+Using xHandle in the registered function signatures relies on xHandle and xPtr being binary-compatible,
+so the AngelScript engine type-puns the xHandle to/from xPtr.
+This probably relies on UB (=undefined behavior) somehow, but it's too convenient to dismiss.
   
