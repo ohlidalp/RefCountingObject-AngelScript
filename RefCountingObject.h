@@ -67,3 +67,6 @@ public:
     int m_refcount = 1; // Initial refcount for any angelscript object.
     static asITypeInfo *ms_type_info; // 'nullptr' means not registered with angelscript at all.
 };
+
+template<class T>
+asITypeInfo* RefCountingObject<T>::ms_type_info = nullptr;

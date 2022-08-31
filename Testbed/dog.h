@@ -12,9 +12,6 @@ public:
     ~Dog() {}
 };
 
-// static
-asITypeInfo* Dog::ms_type_info = nullptr;
-
 Dog* DogFactory()
 {
     return new Dog();

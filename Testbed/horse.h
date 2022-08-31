@@ -21,9 +21,6 @@ public:
     }
 };
 
-// static
-asITypeInfo* Horse::ms_type_info = nullptr;
-
 typedef RefCountingObjectPtr<Horse> HorsePtr;
 
 static HorsePtr g_stable;

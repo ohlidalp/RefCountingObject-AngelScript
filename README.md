@@ -27,9 +27,6 @@ and calling `RegisterRefCountingObject()` for each type.
 
 ```
 class Foo: RefCountingObject<Foo>{}
-// outside a header file:
-asITypeInfo *Foo::ms_type_info = nullptr;
-// ...
 Foo::RegisterRefCountingObject("Foo", engine);
 ```
 
