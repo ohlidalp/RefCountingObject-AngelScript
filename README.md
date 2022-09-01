@@ -30,7 +30,7 @@ To install, just copy the 'RefCountingObject\*' files to your project.
 Define your C++ classes by implementing `RefCountingObject`
 and calling `RegisterRefCountingObject()` for each type.
 
-```
+```cpp
 class Foo: RefCountingObject<Foo>{}
 Foo::RegisterRefCountingObject("Foo", engine);
 ```
@@ -39,7 +39,7 @@ Define your C++ smart pointers by qualifying `RefCountingObjectPtr<>`
 and use them in your interfaces. 
 These will become usable interchangeably from both C++ and script.
 
-```
+```cpp
 typedef RefCountingObjectPtr<Foo> FooPtr;
 // demo API:
 static FooPtr gf;
@@ -59,7 +59,7 @@ engine->RegisterGlobalFunction("FooPtr@ GetFoo()", asFUNCTION(GetFoo), asCALL_CD
 
 In C++, use just the smart pointers and you'll be safe.
 
-```
+```cpp
 FooPtr f1 = new Foo(); // refcount 1
 SetFoo(f1);            // refcount 2
 FooPtr f2 = GetFoo();  // refcount 3

@@ -244,7 +244,7 @@ int CompileScript(asIScriptEngine *engine)
 
 	// We will load the script from a file on the disk.
 	FILE *f = nullptr;
-	fopen_s(&f, "../Example.as", "rb");
+	fopen_s(&f, "Example.as", "rb");
 	if( f == 0 )
 	{
 		std::cout << "Failed to open the script file." << std::endl;

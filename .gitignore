@@ -1,4 +1,5 @@
-Testbed/.vs
-Testbed/x64
-Testbed/Debug
-Testbed/AS_DEBUG
+conan*.txt
+!conanfile.txt
+conan.lock
+graph_info.json
+Find*.cmake

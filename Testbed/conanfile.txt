@@ -1,0 +1,5 @@
+[requires]
+angelscript/2.35.1
+
+[generators]
+cmake_find_package
