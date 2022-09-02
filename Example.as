@@ -62,6 +62,19 @@ float calc(float a, float b)
     
     Print("# Erase local horse ref\n");
     @ho = null;    
+/*    
+    Print("# Create parrot\n");
+    Parrot@ parr = Parrot();
+    
+    Print("# Test aviary\n");
+    PutToAviary(parr);
+    
+    Print("# Erase parrot ref\n");
+    @parr = null;
+    
+    Print("# Dump parrot from aviary\n");
+    PutToAviary(null);
+*/
 
     // Print the value that we received
     Print("# Received: " + a + ", " + b + "\n");
