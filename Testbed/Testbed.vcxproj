@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\HorseHandle.h" />
     <ClInclude Include="..\RefCountingObject.h" />
     <ClInclude Include="..\RefCountingObjectHandle.h" />
     <ClInclude Include="..\RefCountingObjectPtr.h" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Example.cpp" />
+    <ClCompile Include="..\HorseHandle.cpp" />
     <ClCompile Include="..\RefCountingObjectHandle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="scriptstdstring.cpp" />

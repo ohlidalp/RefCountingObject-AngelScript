@@ -28,6 +28,9 @@
     <ClInclude Include="..\RefCountingObject.h">
       <Filter>RefCountingObject</Filter>
     </ClInclude>
+    <ClInclude Include="..\HorseHandle.h">
+      <Filter>testbed</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -40,5 +43,8 @@
       <Filter>RefCountingObject</Filter>
     </ClCompile>
     <ClCompile Include="..\Example.cpp" />
+    <ClCompile Include="..\HorseHandle.cpp">
+      <Filter>testbed</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

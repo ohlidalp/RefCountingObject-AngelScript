@@ -23,10 +23,11 @@ void NativeHandleTest()
 void GenericHandleTest()
 {
     Print("# creating refcounted object using generic handle\n");
-    RefCountingObjectHandle@ ref1 = Horse('Truhlik');
+    RefCountingObjectHandle@ ref1 = Horse('Binky');
     
     Print("# adding ref using generic handle\n");
     RefCountingObjectHandle@ ref2 = ref1;
+    
     
     Print("# create null ref using generic handle\n");
     RefCountingObjectHandle@ ref3 = null;
@@ -35,6 +36,39 @@ void GenericHandleTest()
     @ref3 = ref1;
     
     Print("# removing 2 refs using generic handle\n");
+    @ref3 = null;
+    @ref2 = null;
+    
+    Print("# assign object to new native handle\n");
+    Horse@ nh1 = cast<Horse>(ref1);
+    
+    Print("# assign object to native null handle\n");
+    Horse@ nh2 = null;
+    @nh2 = cast<Horse>(ref1);
+    
+    Print("# clear 2 native handles\n");
+    @nh1 = null;
+    @nh2 = null;
+    
+    Print("# 1 ref goes out of scope - object will be deleted\n");
+    // ref1
+}
+
+void CustomizedHandleTest()
+{
+    Print("# create null ref using customized handle\n");
+    HorseHandle@ ref3 = null;
+
+    Print("# creating refcounted object using customized handle\n");
+    HorseHandle@ ref1 = Horse('Shadowfax');
+    
+    Print("# adding ref using customized handle\n");
+    HorseHandle@ ref2 = ref1;
+    
+    Print("# assign object to null customized handle\n");
+    @ref3 = ref1;
+    
+    Print("# removing 2 refs using customized handle\n");
     @ref3 = null;
     @ref2 = null;
     
@@ -76,7 +110,7 @@ void AppInterfaceNativeHandleTest()
     Print("# Erase local horse ref\n");
     @ho = null;    
 }
-
+/*
 void AppInterfaceGenericHandleTest()
 {
     Print("# creating ref horse using generic handle\n");
@@ -105,7 +139,7 @@ void AppInterfaceGenericHandleTest()
     
     Print("# Erase local horse ref\n");
     @ho = null;    
-}
+}*/
 
 float calc(float a, float b)
 {
@@ -117,16 +151,19 @@ float calc(float a, float b)
     GenericHandleTest();
     Print("##  END Generic handle test\n");
     
+    Print("##  BEGIN Customized handle test\n");
+    CustomizedHandleTest();
+    Print("##  END Customized handle test\n");
+    
     Print("##  BEGIN app interface + native handle test\n");
     AppInterfaceNativeHandleTest();
     Print("##  END app interface + native handle test\n");
     
-    Print("##  BEGIN app interface + Generic handle test\n");
+   /* Print("##  BEGIN app interface + Generic handle test\n");
     AppInterfaceGenericHandleTest();
     Print("##  END app interface + Generic handle test\n");
-    
-    
-   
+    */
+     
     Print("# Create parrot\n");
     Parrot@ parr = Parrot();
     
