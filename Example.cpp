@@ -31,21 +31,21 @@ Parrot* ParrotFactory()
 static HorsePtr g_stable;
 static ParrotPtr g_aviary;
 
-void PutToStableViaHandle(HorsePtr horse)
+void PutToStable(HorsePtr horse)
 {
     // TODO: check type
     std::cout << __FUNCTION__ << ": called with '" << (horse!=nullptr ? horse->m_name : "nullptr") << "'"  << std::endl;
 
     if (horse != nullptr && g_stable != nullptr)
     {
-        std::cout << "PutToStableInternal(): occupied! discarding horse." << std::endl;
+        std::cout << __FUNCTION__ << ": occupied! discarding horse." << std::endl;
         return;
     }
 
     g_stable = horse;
 }
 
-HorsePtr FetchFromStableViaHandle()
+HorsePtr FetchFromStable()
 {
     std::cout << __FUNCTION__ << " called"  << std::endl;
 
@@ -90,8 +90,8 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Registering example interface
-    r = engine->RegisterGlobalFunction("void PutToStableViaHandle(RefCountingObjectHandle@ h)", asFUNCTION(PutToStableViaHandle), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("RefCountingObjectHandle@ FetchFromStableViaHandle()", asFUNCTION(FetchFromStableViaHandle), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void PutToStable(RefCountingObjectHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("RefCountingObjectHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
 
     // -- Parrot --
     // Registering the reference type
@@ -118,13 +118,13 @@ void ExampleCpp(asIScriptEngine *engine)
     std::cout << "# TestHorse(): function call" << std::endl;
     ptr1 = TestHorseFunctionCall(ptr1);
     std::cout << "# TestHorse(): put to stable" << std::endl;
-    PutToStableViaHandle(ptr1);
+    PutToStable(ptr1);
     std::cout << "# TestHorse(): delete local ref" << std::endl;
     ptr1 = nullptr;
     std::cout << "# TestHorse(): fetch from stable" << std::endl;
-    ptr1 = FetchFromStableViaHandle();
+    ptr1 = FetchFromStable();
     std::cout << "# TestHorse(): dump from stable" << std::endl;
-    PutToStableViaHandle(nullptr);
+    PutToStable(nullptr);
     std::cout << "# TestHorse(): delete local instance" << std::endl;
     ptr1 = nullptr;
 }

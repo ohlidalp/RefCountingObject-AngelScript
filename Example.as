@@ -1,4 +1,4 @@
-float calc(float a, float b)
+void NativeHandleTest()
 {
     Print("# creating refcounted object\n");
     Horse@ ref1 = Horse('Jurasek');
@@ -6,63 +6,127 @@ float calc(float a, float b)
     Print("# adding ref\n");
     Horse@ ref2 = ref1;
     
-    Print("# removing ref\n");
+    Print("# create null ref\n");
+    Horse@ ref3 = null;
+    
+    Print("# assign object to null ref\n");
+    @ref3 = ref1;
+    
+    Print("# removing 2 refs\n");
+    @ref3 = null;
     @ref2 = null;
     
-    Print("# deleting refcounted object\n");
-    @ref1 = null;
+    Print("# 2 ref goes out of scope - object will be deleted\n");
+    // ref1
+}
+
+void GenericHandleTest()
+{
+    Print("# creating refcounted object using generic handle\n");
+    RefCountingObjectHandle@ ref1 = Horse('Truhlik');
     
+    Print("# adding ref using generic handle\n");
+    RefCountingObjectHandle@ ref2 = ref1;
+    
+    Print("# create null ref using generic handle\n");
+    RefCountingObjectHandle@ ref3 = null;
+    
+    Print("# assign object to null generic handle\n");
+    @ref3 = ref1;
+    
+    Print("# removing 2 refs using generic handle\n");
+    @ref3 = null;
+    @ref2 = null;
+    
+    Print("# assign object to new native handle\n");
+    Horse@ nh1 = cast<Horse>(ref1);
+    
+    Print("# assign object to native null handle\n");
+    Horse@ nh2 = null;
+    @nh2 = cast<Horse>(ref1);
+    
+    Print("# clear 2 native handles\n");
+    @nh1 = null;
+    @nh2 = null;
+    
+    Print("# 1 ref goes out of scope - object will be deleted\n");
+    // ref1
+}
+
+void AppInterfaceNativeHandleTest()
+{
     Print("# creating ref horse\n");
     Horse@ ho = Horse("Semik");
     
-    Print("# putting ref horse to stable via implicitly-constructed Handle object\n");
-    PutToStableViaHandle(ho);    
+    Print("# putting ref horse to stable via implicitly-constructed generic handle\n");
+    PutToStable(ho);    
 
     Print("# Erase local horse ref\n");
     @ho = null;
     
-    Print("# Creating horse with RCOH handle\n");
-    RefCountingObjectHandle@ rcoh_horse = Horse('Spirit');
-    
-    Print("# Initializing horse ref from RCOH handle\n");
-    Horse@ exRcoh_horse = cast<Horse>(rcoh_horse);
-    
-    Print("# putting ref horse to stable via explicit Handle object\n");
-    PutToStableViaHandle(rcoh_horse);
-    
-    Print("# Clearing the RCOH handle\n");
-    @rcoh_horse = null;
-    
-    Print("# Clearing the local ref\n");
-    @exRcoh_horse = null;  
-
-    Print("# Assign RCOH handle from stable, via explicit Handle object");
-    @rcoh_horse = FetchFromStableViaHandle();
-    
-    Print("# Dump horse from stable, via null Handle object\n");
-    PutToStableViaHandle(null);
-    
-    Print("# Make sure the RCOH handle from stable is in consistent state\n");
-    @exRcoh_horse = cast<Horse>(rcoh_horse);
-    
-    Print("# Clearing the RCOH handle\n");
-    @rcoh_horse = null;
-
     Print("# putting unreferenced horse to stable\n");
-    PutToStableViaHandle(Horse("Rossinante"));
-    
-    Print("# putting another unref horse to stable\n");
-    PutToStableViaHandle(Horse("Jolly Jumper")); 
+    PutToStable(Horse("Rossinante"));
 
     Print("# fetching horse back from stable\n");
-    @ho = cast<Horse>(FetchFromStableViaHandle());
+    @ho = cast<Horse>(FetchFromStable());
     
     Print("# Dump horse from stable\n");
-    PutToStableViaHandle(null);
+    PutToStable(null);
     
     Print("# Erase local horse ref\n");
     @ho = null;    
-/*    
+}
+
+void AppInterfaceGenericHandleTest()
+{
+    Print("# creating ref horse using generic handle\n");
+    RefCountingObjectHandle@ ho = Horse("Jolly Jumper");
+    
+    Print("# putting ref horse to stable via explicit generic handle\n");
+    PutToStable(ho);    
+
+    Print("# Erase local horse ref\n");
+    @ho = null;
+    
+    Print("# putting unreferenced horse to stable by explicitly constructing generic handle\n");
+    PutToStable(RefCountingObjectHandle(Horse("Rossinante")));
+
+    Print("# fetching horse back from stable to generic handle\n");
+    @ho = FetchFromStable();
+    
+    Print("# Extra: Make sure the generic handle from stable is in consistent state\n");
+    Horse@ native = cast<Horse>(ho);
+    
+    Print("# Erase native handle\n");
+    @native = null;
+    
+    Print("# Dump horse from stable\n");
+    PutToStable(null);
+    
+    Print("# Erase local horse ref\n");
+    @ho = null;    
+}
+
+float calc(float a, float b)
+{
+    Print("##  BEGIN native handle test\n");
+    NativeHandleTest();
+    Print("##  END native handle test\n");
+    
+    Print("##  BEGIN Generic handle test\n");
+    GenericHandleTest();
+    Print("##  END Generic handle test\n");
+    
+    Print("##  BEGIN app interface + native handle test\n");
+    AppInterfaceNativeHandleTest();
+    Print("##  END app interface + native handle test\n");
+    
+    Print("##  BEGIN app interface + Generic handle test\n");
+    AppInterfaceGenericHandleTest();
+    Print("##  END app interface + Generic handle test\n");
+    
+    
+   
     Print("# Create parrot\n");
     Parrot@ parr = Parrot();
     
@@ -74,7 +138,7 @@ float calc(float a, float b)
     
     Print("# Dump parrot from aviary\n");
     PutToAviary(null);
-*/
+
 
     // Print the value that we received
     Print("# Received: " + a + ", " + b + "\n");
