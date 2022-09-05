@@ -244,14 +244,6 @@ void RegisterHorseHandle(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(Construct, (HorseHandle *), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(const HorseHandle &in)", asFUNCTIONPR(Construct, (HorseHandle *, const HorseHandle &), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     
-    // Doesn't work, 2 problems:
-    //  ERR  : No matching signatures to 'PutToStable(<null handle>)'
-    //  - script compiles and runs but objects are dropped and replaced with strange instance.
-    //r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(const Horse&in)", asFUNCTIONPR(Construct, (HorseHandle *, void *, int), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    //Conclusion: this was nonsense, the func(void*ref, int type) interface is only for variable-type params, see doc: https://www.angelcode.com/angelscript/sdk/docs/manual/doc_adv_var_type.html
-    
-    //r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(const Horse@&in)", asFUNCTIONPR(Construct, (HorseHandle *, void *, int), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    //r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse@&in)", asFUNCTIONPR(Construct, (HorseHandle *, void *, int), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(Destruct, (HorseHandle *), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(HorseHandle,EnumReferences), asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(HorseHandle, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
