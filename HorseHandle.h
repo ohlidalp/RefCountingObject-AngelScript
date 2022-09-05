@@ -51,7 +51,6 @@ protected:
 
     // These shouldn't be called directly by the 
     // application as they requires an active context
-    HorseHandle(void *ref, int typeId);
     HorseHandle &Assign(void *ref, int typeId);
 
     void        *m_ref;

@@ -83,6 +83,15 @@ HorsePtr TestHorseFunctionCall(HorsePtr argPtr)
     return argPtr;
 }
 
+// This will be a template in the future...
+static void ConstructHorseHandleFromPtr(HorseHandle* self, Horse* obj)
+{
+    // Works OK when constructing from existing native handle,
+    // but adds rogue extra reference when assigning from temporary instance!!
+
+    new(self)HorseHandle(obj, RefCountingObject<Horse>::GetTypeInfo());
+}
+
 void ExampleCpp(asIScriptEngine *engine)
 {
     RegisterRefCountingObjectHandle(engine);
@@ -96,6 +105,7 @@ void ExampleCpp(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
     RegisterHorseHandle(engine);
+    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse@)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );

@@ -56,14 +56,14 @@ void GenericHandleTest()
 
 void CustomizedHandleTest()
 {
-    Print("# create null ref using customized handle\n");
-    HorseHandle@ ref3 = null;
-
     Print("# creating refcounted object using customized handle\n");
     HorseHandle@ ref1 = Horse('Shadowfax');
     
     Print("# adding ref using customized handle\n");
     HorseHandle@ ref2 = ref1;
+    
+    Print("# create null customized handle\n");
+    HorseHandle@ ref3 = null;
     
     Print("# assign object to null customized handle\n");
     @ref3 = ref1;
@@ -79,14 +79,22 @@ void CustomizedHandleTest()
     Horse@ nh2 = null;
     @nh2 = cast<Horse>(ref1);
     
-    Print("# clear 2 native handles\n");
+    Print("# clear native handle\n");
     @nh1 = null;
-    @nh2 = null;
+    
+    Print("# assign object from native handle to null customized handle\n");
+    @ref2 = @nh2;
+    
+    Print("# clear native handle\n");
+    @nh2 = null;   
+
+    Print("# removing ref using customized handle\n");
+    @ref2 = null;
     
     Print("# 1 ref goes out of scope - object will be deleted\n");
     // ref1
 }
-
+/*
 void AppInterfaceNativeHandleTest()
 {
     Print("# creating ref horse\n");
@@ -110,7 +118,7 @@ void AppInterfaceNativeHandleTest()
     Print("# Erase local horse ref\n");
     @ho = null;    
 }
-/*
+
 void AppInterfaceGenericHandleTest()
 {
     Print("# creating ref horse using generic handle\n");
@@ -155,10 +163,10 @@ float calc(float a, float b)
     CustomizedHandleTest();
     Print("##  END Customized handle test\n");
     
-    Print("##  BEGIN app interface + native handle test\n");
+/*    Print("##  BEGIN app interface + native handle test\n");
     AppInterfaceNativeHandleTest();
     Print("##  END app interface + native handle test\n");
-    
+  */  
    /* Print("##  BEGIN app interface + Generic handle test\n");
     AppInterfaceGenericHandleTest();
     Print("##  END app interface + Generic handle test\n");
