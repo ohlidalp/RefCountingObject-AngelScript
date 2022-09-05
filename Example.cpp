@@ -12,12 +12,15 @@ class Horse: public RefCountingObject<Horse>
 {
 public:
     Horse(std::string name): RefCountingObject(name) {}
+    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
 };
 
 class Parrot: public RefCountingObject<Parrot>
 {
 public:
     Parrot(): RefCountingObject("not-a-horse"){}
+    void Idle() { std::cout << m_name << ": ..." <<std::endl; }
+    void Chirp() { std::cout << m_name <<": chirp!" << std::endl; }
 };
 
 typedef RefCountingObjectPtr<Horse> HorsePtr;
@@ -101,6 +104,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // -- Horse --
     // Registering the reference type
     Horse::RegisterRefCountingObject("Horse", engine);
+    r = engine->RegisterObjectMethod("Horse", "void Neigh()", asMETHOD(Horse, Neigh), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
@@ -113,6 +117,8 @@ void ExampleCpp(asIScriptEngine *engine)
     // -- Parrot --
     // Registering the reference type
     Parrot::RegisterRefCountingObject("Parrot", engine);
+    r = engine->RegisterObjectMethod("Parrot", "void Idle()", asMETHOD(Parrot, Idle), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("Parrot", "void Chirp()", asMETHOD(Parrot, Chirp), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Parrot", asBEHAVE_FACTORY, "Parrot@ f()", asFUNCTION(ParrotFactory), asCALL_CDECL); assert( r >= 0 );
     // Registering example interface
