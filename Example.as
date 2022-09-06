@@ -142,7 +142,7 @@ void AppInterfaceCustomizedPtrTest()
     // ho
 }
 
-float calc(float a, float b)
+void ExampleAngelScript()
 {
     Print("##  BEGIN native handle test\n");
     NativePtrTest();
@@ -173,14 +173,4 @@ float calc(float a, float b)
     
     Print("# Dump parrot from aviary\n");
     PutToAviary(null);
-
-
-    // Print the value that we received
-    Print("# Received: " + a + ", " + b + "\n");
-    
-    // Print the current system time
-    Print("# System has been running for " + GetSystemTime()/1000.0 + " seconds\n");
-    
-    // Do the calculation and return the value to the application
-    return a * b;
 }

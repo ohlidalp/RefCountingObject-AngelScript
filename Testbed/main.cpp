@@ -138,10 +138,10 @@ int RunApplication()
 	}
 
 	// Find the function for the function we want to execute.
-	asIScriptFunction *func = engine->GetModule(0)->GetFunctionByDecl("float calc(float, float)");
+	asIScriptFunction *func = engine->GetModule(0)->GetFunctionByDecl("void ExampleAngelScript()");
 	if( func == 0 )
 	{
-		std::cout << "The function 'float calc(float, float)' was not found." << std::endl;
+		std::cout << "The function 'void ExampleAngelScript()' was not found." << std::endl;
 		ctx->Release();
 		engine->Release();
 		return -1;
@@ -161,13 +161,9 @@ int RunApplication()
 		return -1;
 	}
 
-	// Now we need to pass the parameters to the script function. 
-	ctx->SetArgFloat(0, 3.14159265359f);
-	ctx->SetArgFloat(1, 2.71828182846f);
-
-	// Set the timeout before executing the function. Give the function 1 sec
+	// Set the timeout before executing the function. Give the function 2 sec
 	// to return before we'll abort it.
-	timeOut = timeGetTime() + 1000;
+	timeOut = timeGetTime() + 2000;
 
 	// Execute the function
 	std::cout << "Executing the script." << std::endl;
@@ -193,12 +189,6 @@ int RunApplication()
 		}
 		else
 			std::cout << "The script ended for some unforeseen reason (" << r << ")." << std::endl;
-	}
-	else
-	{
-		// Retrieve the return value from the context
-		float returnValue = ctx->GetReturnFloat();
-		std::cout << "The script function returned: " << returnValue << std::endl;
 	}
 
 	// We must release the contexts when no longer using them
