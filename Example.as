@@ -20,40 +20,6 @@ void NativeHandleTest()
     // ref1
 }
 
-void GenericHandleTest()
-{
-    Print("# creating refcounted object using generic handle\n");
-    RefCountingObjectHandle@ ref1 = Horse('Binky');
-    
-    Print("# adding ref using generic handle\n");
-    RefCountingObjectHandle@ ref2 = ref1;
-    
-    
-    Print("# create null ref using generic handle\n");
-    RefCountingObjectHandle@ ref3 = null;
-    
-    Print("# assign object to null generic handle\n");
-    @ref3 = ref1;
-    
-    Print("# removing 2 refs using generic handle\n");
-    @ref3 = null;
-    @ref2 = null;
-    
-    Print("# assign object to new native handle\n");
-    Horse@ nh1 = cast<Horse>(ref1);
-    
-    Print("# assign object to native null handle\n");
-    Horse@ nh2 = null;
-    @nh2 = cast<Horse>(ref1);
-    
-    Print("# clear 2 native handles\n");
-    @nh1 = null;
-    @nh2 = null;
-    
-    Print("# 1 ref goes out of scope - object will be deleted\n");
-    // ref1
-}
-
 void CustomizedHandleTest()
 {
     Print("# creating refcounted object using customized handle\n");
@@ -181,10 +147,6 @@ float calc(float a, float b)
     Print("##  BEGIN native handle test\n");
     NativeHandleTest();
     Print("##  END native handle test\n");
-    
-    Print("##  BEGIN Generic handle test\n");
-    GenericHandleTest();
-    Print("##  END Generic handle test\n");
     
     Print("##  BEGIN Customized handle test\n");
     CustomizedHandleTest();

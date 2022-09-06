@@ -19,17 +19,11 @@
     <ClInclude Include="scriptstdstring.h">
       <Filter>testbed</Filter>
     </ClInclude>
-    <ClInclude Include="..\RefCountingObjectHandle.h">
+    <ClInclude Include="..\RefCountingObject.h">
       <Filter>RefCountingObject</Filter>
     </ClInclude>
     <ClInclude Include="..\RefCountingObjectPtr.h">
       <Filter>RefCountingObject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RefCountingObject.h">
-      <Filter>RefCountingObject</Filter>
-    </ClInclude>
-    <ClInclude Include="..\HorseHandle.h">
-      <Filter>testbed</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -38,9 +32,6 @@
     </ClCompile>
     <ClCompile Include="scriptstdstring.cpp">
       <Filter>testbed</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RefCountingObjectHandle.cpp">
-      <Filter>RefCountingObject</Filter>
     </ClCompile>
     <ClCompile Include="..\Example.cpp" />
   </ItemGroup>

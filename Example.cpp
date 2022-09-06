@@ -1,7 +1,6 @@
 
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
-#include "HorseHandle.h"
 
 #include <string>
 #include <vector>
@@ -23,7 +22,7 @@ public:
     void Chirp() { std::cout << m_name <<": chirp!" << std::endl; }
 };
 
-typedef HorseHandle<Horse> HorsePtr;
+typedef RefCountingObjectPtr<Horse> HorsePtr;
 typedef RefCountingObjectPtr<Parrot> ParrotPtr;
 
 Horse* HorseFactory(std::string name)
@@ -90,8 +89,6 @@ HorsePtr ExampleCppFunctionCall(HorsePtr argPtr)
 
 void ExampleCpp(asIScriptEngine *engine)
 {
-    RegisterRefCountingObjectHandle(engine);
-
     int r;
 
     // -- Horse --
@@ -101,7 +98,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterHorseHandle("HorseHandle", "Horse", engine);
+    HorsePtr::RegisterRefCountingObjectPtr("HorseHandle", "Horse", engine);
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
@@ -113,9 +110,11 @@ void ExampleCpp(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("Parrot", "void Chirp()", asMETHOD(Parrot, Chirp), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Parrot", asBEHAVE_FACTORY, "Parrot@ f()", asFUNCTION(ParrotFactory), asCALL_CDECL); assert( r >= 0 );
+    // Register handle type
+    HorsePtr::RegisterRefCountingObjectPtr("ParrotHandle", "Parrot", engine);
     // Registering example interface
-    r = engine->RegisterGlobalFunction("void PutToAviary(RefCountingObjectHandle@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("RefCountingObjectHandle@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void PutToAviary(ParrotHandle@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("ParrotHandle@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
 
     // Test horse interface from C++
     std::vector<HorsePtr> horses;
