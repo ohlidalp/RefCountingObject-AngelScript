@@ -1,3 +1,8 @@
+
+// RefCountingObject system for AngelScript
+// Copyright (c) 2022 Petr Ohlidal
+// https://github.com/only-a-ptr/RefCountingObject-AngelScript
+
 #pragma once
 
 #include "Testbed/debug_log.h"
@@ -42,11 +47,6 @@ public:
         }
     }
 
-    static asITypeInfo* GetTypeInfo()
-    {
-        return ms_type_info;
-    }
-
     static void  RegisterRefCountingObject(const char* name, asIScriptEngine *engine)
     {
         int r;
@@ -56,17 +56,10 @@ public:
         // Registering the addref/release behaviours
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()", asMETHOD(T,AddRef), asCALL_THISCALL); assert( r >= 0 );
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); assert( r >= 0 );
-
-        // Obtain type info for constructing handles in C++ without active script context.
-        RefCountingObject<T>::ms_type_info = engine->GetTypeInfoByName(name); assert(ms_type_info);
     }
 
 #ifdef RCO_ENABLE_DEBUGTRACE
     std::string m_name;
 #endif
     int m_refcount = 1; // Initial refcount for any angelscript object.
-    static asITypeInfo *ms_type_info; // 'nullptr' means not registered with angelscript at all.
 };
-
-template<class T>
-asITypeInfo* RefCountingObject<T>::ms_type_info = nullptr;
