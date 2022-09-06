@@ -37,7 +37,7 @@ public:
     void EnumReferences(asIScriptEngine *engine);
     void ReleaseReferences(asIScriptEngine *engine);
 
-    static void RegisterHorseHandle(asIScriptEngine *engine);
+    static void RegisterHorseHandle(const char* handle_name, const char* obj_name, asIScriptEngine *engine);
 
 protected:
 
@@ -57,28 +57,37 @@ protected:
 };
 
 template<class T>
-void HorseHandle<T>::RegisterHorseHandle(asIScriptEngine *engine)
+void HorseHandle<T>::RegisterHorseHandle(const char* handle_name, const char* obj_name, asIScriptEngine *engine)
 {
     int r;
+    const size_t DECLBUF_MAX = 300;
+    char decl_buf[DECLBUF_MAX];
 
     // With C++11 it is possible to use asGetTypeTraits to automatically determine the flags that represent the C++ class
-    r = engine->RegisterObjectType("HorseHandle", sizeof(HorseHandle), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<HorseHandle>()); assert( r >= 0 );
+    r = engine->RegisterObjectType(handle_name, sizeof(HorseHandle), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<HorseHandle>()); assert( r >= 0 );
     // construct/destruct
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(HorseHandle::ConstructDefault), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse@&in)", asFUNCTION(HorseHandle::ConstructRef), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(const HorseHandle &in)", asFUNCTION(HorseHandle::ConstructCopy), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(HorseHandle::Destruct), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(HorseHandle::ConstructDefault), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "void f(%s@&in)", obj_name);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(HorseHandle::ConstructRef), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "void f(const %s &in)", handle_name);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(HorseHandle::ConstructCopy), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_DESTRUCT, "void f()", asFUNCTION(HorseHandle::Destruct), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // GC
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(HorseHandle,EnumReferences), asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(HorseHandle, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(HorseHandle,EnumReferences), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(HorseHandle, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
     // Cast
-    r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(HorseHandle::OpImplCast), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "%s@ opImplCast()", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(HorseHandle::OpImplCast), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Assign
-    r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const HorseHandle &in)", asMETHOD(HorseHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const Horse@&in)", asFUNCTION(HorseHandle::OpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "HorseHandle &opHndlAssign(const %s &in)", handle_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHOD(HorseHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "HorseHandle &opHndlAssign(const %s@&in)", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(HorseHandle::OpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Equals
-    r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const HorseHandle &in) const", asMETHODPR(HorseHandle, operator==, (const HorseHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const Horse@&in) const", asFUNCTION(HorseHandle::OpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s &in) const", handle_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHODPR(HorseHandle, operator==, (const HorseHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
+    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s@&in) const", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(HorseHandle::OpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 }
 
 
