@@ -8,6 +8,7 @@
 #pragma once
 
 #include <angelscript.h>
+#include <cassert>
 
 #if !defined(RefCoutingObjectPtr_DEBUGTRACE)
 #   define RefCoutingObjectPtr_DEBUGTRACE
@@ -145,9 +146,8 @@ inline bool RefCountingObjectPtr<T>::OpEquals(RefCountingObjectPtr<T>* self, voi
 
 template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr()
+    : m_ref(nullptr)
 {
-    m_ref = nullptr;
-
     RefCoutingObjectPtr_DEBUGTRACE(nullptr);
 }
 

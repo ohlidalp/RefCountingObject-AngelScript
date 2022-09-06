@@ -1,7 +1,7 @@
 void NativePtrTest()
 {
     Print("# creating refcounted object\n");
-    Horse@ ref1 = Horse('Jurasek');
+    Horse@ ref1 = Horse(); // 'Jurasek'
     
     Print("# adding ref\n");
     Horse@ ref2 = ref1;
@@ -23,7 +23,7 @@ void NativePtrTest()
 void CustomizedPtrTest()
 {
     Print("# creating refcounted object using customized handle\n");
-    HorsePtr@ ref1 = Horse('Shadowfax');
+    HorsePtr@ ref1 = Horse(); // 'Shadowfax'
     //ref1.Neigh(); // Ptrs don't work this way
     
     Print("# adding ref using customized handle\n");
@@ -90,7 +90,7 @@ void CustomizedPtrTest()
 void AppInterfaceNativePtrTest()
 {
     Print("# creating ref horse\n");
-    Horse@ ho = Horse("Semik");
+    Horse@ ho = Horse(); // "Semik"
     
     Print("# putting ref horse to stable via implicitly-constructed generic handle\n");
     PutToStable(ho);    
@@ -99,7 +99,7 @@ void AppInterfaceNativePtrTest()
     @ho = null;
     
     Print("# putting unreferenced horse to stable\n");
-    PutToStable(Horse("Rossinante"));
+    PutToStable(Horse()); // "Rossinante"
 
     Print("# fetching horse back from stable\n");
     @ho = FetchFromStable();
@@ -114,7 +114,7 @@ void AppInterfaceNativePtrTest()
 void AppInterfaceCustomizedPtrTest()
 {
     Print("# creating ref horse using customized handle\n");
-    HorsePtr@ ho = Horse("Jolly Jumper");
+    HorsePtr@ ho = Horse(); // "Jolly Jumper"
     
     Print("# putting ref horse to stable via explicit customized handle\n");
     PutToStable(ho);    
@@ -123,7 +123,7 @@ void AppInterfaceCustomizedPtrTest()
     @ho = null;
     
     Print("# putting unreferenced horse to stable by explicitly constructing customized handle\n");
-    PutToStable(HorsePtr(Horse("Rossinante")));
+    PutToStable(HorsePtr(Horse())); // "Fru-Fru"
 
     Print("# fetching horse back from stable to customized handle\n");
     @ho = FetchFromStable();

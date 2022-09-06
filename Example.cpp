@@ -10,24 +10,22 @@
 class Horse: public RefCountingObject<Horse>
 {
 public:
-    Horse(std::string name): RefCountingObject(name) {}
-    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
+    void Neigh() { std::cout << this << ": neigh!" << std::endl; }
 };
 
 class Parrot: public RefCountingObject<Parrot>
 {
 public:
-    Parrot(): RefCountingObject("not-a-horse"){}
-    void Idle() { std::cout << m_name << ": ..." <<std::endl; }
-    void Chirp() { std::cout << m_name <<": chirp!" << std::endl; }
+    void Idle() { std::cout << this << ": ..." <<std::endl; }
+    void Chirp() { std::cout << this <<": chirp!" << std::endl; }
 };
 
 typedef RefCountingObjectPtr<Horse> HorsePtr;
 typedef RefCountingObjectPtr<Parrot> ParrotPtr;
 
-Horse* HorseFactory(std::string name)
+Horse* HorseFactory()
 {
-    return new Horse(name);
+    return new Horse();
 }
 
 Parrot* ParrotFactory()
@@ -40,8 +38,7 @@ static ParrotPtr g_aviary;
 
 void PutToStable(HorsePtr horse)
 {
-    std::string name = (horse!=nullptr ? horse->m_name : "nullptr");
-    std::cout << __FUNCTION__ << ": called with '" << name << "'"  << std::endl;
+    std::cout << __FUNCTION__ << ": called with '" << horse.GetRef() << "'"  << std::endl;
 
     if (horse != nullptr && g_stable != nullptr)
     {
@@ -61,7 +58,7 @@ HorsePtr FetchFromStable()
 
 void PutToAviary(ParrotPtr parrot)
 {
-    std::cout << __FUNCTION__ << " called"  << std::endl;
+    std::cout << __FUNCTION__ << " called with '" << parrot.GetRef() << "'" << std::endl;
 
     if (parrot != nullptr && g_aviary != nullptr)
     {
@@ -96,7 +93,7 @@ void ExampleCpp(asIScriptEngine *engine)
     Horse::RegisterRefCountingObject("Horse", engine);
     r = engine->RegisterObjectMethod("Horse", "void Neigh()", asMETHOD(Horse, Neigh), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
-    r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f()", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
     HorsePtr::RegisterRefCountingObjectPtr("HorsePtr", "Horse", engine);
     // Registering example interface
@@ -120,7 +117,7 @@ void ExampleCpp(asIScriptEngine *engine)
     std::vector<HorsePtr> horses;
 
     std::cout << "# ExampleCpp(): construct" << std::endl;
-    HorsePtr ptr1 = HorseFactory("Artax");
+    HorsePtr ptr1 = HorseFactory(); // "Artax"
     std::cout << "# ExampleCpp(): add ref" << std::endl;
     HorsePtr ptr2 = ptr1;
     std::cout << "# ExampleCpp: vector push" << std::endl;
@@ -140,7 +137,7 @@ void ExampleCpp(asIScriptEngine *engine)
     std::cout << "# ExampleCpp(): dump from stable" << std::endl;
     PutToStable(nullptr);
     std::cout << "# ExampleCpp(): create second object, assign to existing null handle" << std::endl;
-    ptr2 = HorseFactory("Gunpowder");
+    ptr2 = HorseFactory(); // "Gunpowder"
     std::cout << "# ExampleCpp(): release ref" << std::endl;
     ptr2 = nullptr;
     std::cout << "# ExampleCpp(): 1 ref goes out of scope, object will be deleted" << std::endl;

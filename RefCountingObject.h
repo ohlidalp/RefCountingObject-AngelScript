@@ -5,9 +5,12 @@
 
 #pragma once
 
-#include "Testbed/debug_log.h"
 #include <angelscript.h>
 #include <cassert>
+
+#if !defined(RefCoutingObject_DEBUGTRACE)
+#   define RefCoutingObject_DEBUGTRACE
+#endif
 
 /// Self reference-counting objects, as requred by AngelScript garbage collector.
 template<class T> class RefCountingObject
@@ -15,30 +18,24 @@ template<class T> class RefCountingObject
 public:
     RefCountingObject()
     {
-        RCO_DEBUGTRACE();
-    }
-
-    RefCountingObject(std::string name)
-    {
-        m_name = name;
-        RCO_DEBUGTRACE();
+        RefCoutingObject_DEBUGTRACE();
     }
 
     virtual ~RefCountingObject()
     {
-        RCO_DEBUGTRACE();
+        RefCoutingObject_DEBUGTRACE();
     }
 
     void AddRef()
     {
         m_refcount++;
-        RCO_DEBUGTRACE();
+        RefCoutingObject_DEBUGTRACE();
     }
 
     void Release()
     {
         m_refcount--;
-        RCO_DEBUGTRACE();
+        RefCoutingObject_DEBUGTRACE();
         if (m_refcount == 0)
         {
             delete this; // commit suicide! This is legit in C++
@@ -56,6 +53,5 @@ public:
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); assert( r >= 0 );
     }
 
-    std::string m_name;
     int m_refcount = 1; // Initial refcount for any angelscript object.
 };

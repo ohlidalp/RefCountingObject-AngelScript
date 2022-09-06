@@ -22,7 +22,6 @@ and which would remain fully functional for C++ even if built without AngelScrip
 ## How to use
 
 To install, just copy the 'RefCountingObject\*' files to your project.
-Presently, you'll also need 'Testbed/debug_log.h', I'll improve on that.
 
 Define your C++ classes by implementing `RefCountingObject`
 and calling `RegisterRefCountingObject()` for each type.
