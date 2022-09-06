@@ -98,10 +98,10 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterRefCountingObjectPtr("HorseHandle", "Horse", engine);
+    HorsePtr::RegisterRefCountingObjectPtr("HorsePtr", "Horse", engine);
     // Registering example interface
-    r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void PutToStable(HorsePtr@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("HorsePtr@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
 
     // -- Parrot --
     // Registering the reference type
@@ -111,10 +111,10 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Parrot", asBEHAVE_FACTORY, "Parrot@ f()", asFUNCTION(ParrotFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterRefCountingObjectPtr("ParrotHandle", "Parrot", engine);
+    HorsePtr::RegisterRefCountingObjectPtr("ParrotPtr", "Parrot", engine);
     // Registering example interface
-    r = engine->RegisterGlobalFunction("void PutToAviary(ParrotHandle@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
-    r = engine->RegisterGlobalFunction("ParrotHandle@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void PutToAviary(ParrotPtr@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("ParrotPtr@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
 
     // Test horse interface from C++
     std::vector<HorsePtr> horses;

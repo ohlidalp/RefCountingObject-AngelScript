@@ -1,4 +1,4 @@
-void NativeHandleTest()
+void NativePtrTest()
 {
     Print("# creating refcounted object\n");
     Horse@ ref1 = Horse('Jurasek');
@@ -20,21 +20,21 @@ void NativeHandleTest()
     // ref1
 }
 
-void CustomizedHandleTest()
+void CustomizedPtrTest()
 {
     Print("# creating refcounted object using customized handle\n");
-    HorseHandle@ ref1 = Horse('Shadowfax');
-    //ref1.Neigh(); // Handles don't work this way
+    HorsePtr@ ref1 = Horse('Shadowfax');
+    //ref1.Neigh(); // Ptrs don't work this way
     
     Print("# adding ref using customized handle\n");
-    HorseHandle@ ref2 = ref1;
+    HorsePtr@ ref2 = ref1;
     
     Print("# Test equality on customized handles\n");
     Print("`(ref2 == ref1)`: " + (ref2 == ref1) + "\n");
     Print("`(@ref2 == @ref1)`: " + (@ref2 == @ref1) + "\n");
     
     Print("# create null customized handle\n");
-    HorseHandle@ ref3 = null;
+    HorsePtr@ ref3 = null;
     
     Print("# Test equality on null/notnull customized handles\n");
     Print("`(ref2 == ref3)`: " + (ref2 == ref3) + "\n");
@@ -87,7 +87,7 @@ void CustomizedHandleTest()
     // ref1
 }
 
-void AppInterfaceNativeHandleTest()
+void AppInterfaceNativePtrTest()
 {
     Print("# creating ref horse\n");
     Horse@ ho = Horse("Semik");
@@ -111,10 +111,10 @@ void AppInterfaceNativeHandleTest()
     @ho = null;    
 }
 
-void AppInterfaceCustomizedHandleTest()
+void AppInterfaceCustomizedPtrTest()
 {
     Print("# creating ref horse using customized handle\n");
-    HorseHandle@ ho = Horse("Jolly Jumper");
+    HorsePtr@ ho = Horse("Jolly Jumper");
     
     Print("# putting ref horse to stable via explicit customized handle\n");
     PutToStable(ho);    
@@ -123,7 +123,7 @@ void AppInterfaceCustomizedHandleTest()
     @ho = null;
     
     Print("# putting unreferenced horse to stable by explicitly constructing customized handle\n");
-    PutToStable(HorseHandle(Horse("Rossinante")));
+    PutToStable(HorsePtr(Horse("Rossinante")));
 
     Print("# fetching horse back from stable to customized handle\n");
     @ho = FetchFromStable();
@@ -145,19 +145,19 @@ void AppInterfaceCustomizedHandleTest()
 float calc(float a, float b)
 {
     Print("##  BEGIN native handle test\n");
-    NativeHandleTest();
+    NativePtrTest();
     Print("##  END native handle test\n");
     
     Print("##  BEGIN Customized handle test\n");
-    CustomizedHandleTest();
+    CustomizedPtrTest();
     Print("##  END Customized handle test\n");
     
     Print("##  BEGIN app interface + native handle test\n");
-    AppInterfaceNativeHandleTest();
+    AppInterfaceNativePtrTest();
     Print("##  END app interface + native handle test\n");
     
     Print("##  BEGIN app interface + Customized handle test\n");
-    AppInterfaceCustomizedHandleTest();
+    AppInterfaceCustomizedPtrTest();
     Print("##  END app interface + Customized handle test\n");
     
      

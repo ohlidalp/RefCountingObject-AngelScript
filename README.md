@@ -48,10 +48,10 @@ Register `RefCountingObjectHandle` with the script engine
 and use it to register your interface.
 
 ```
-RegisterRefCountingObjectHandle(engine);
+FooPtr::RegisterRefCountingObjectPtr("FooPtr", "Foo", engine);
 // ...
-engine->RegisterGlobalFunction("void SetFoo(RefCountingObjectHandle@)", asFUNCTION(SetFoo), asCALL_CDECL);
-engine->RegisterGlobalFunction("RefCountingObjectHandle@ GetFoo()", asFUNCTION(GetFoo), asCALL_CDECL);
+engine->RegisterGlobalFunction("void SetFoo(FooPtr@)", asFUNCTION(SetFoo), asCALL_CDECL);
+engine->RegisterGlobalFunction("FooPtr@ GetFoo()", asFUNCTION(GetFoo), asCALL_CDECL);
 ```
 
 In C++, use just the smart pointers and you'll be safe.
@@ -66,15 +66,14 @@ SetFoo(nullptr);       // refcount 0 -> deleted.
 ```
 
 In AngelScript, use the native handles.
-Currently a cast is needed for the getter function, but I'm working on it.
 
 ```
-Foo@ f1 = new Foo();            // refcount 1
-SetFoo(f1);                     // refcount 2
-Foo@ f2 = cast<Foo>(GetFoo());  // refcount 3
-@f2 = null;                     // refcount 2
-@f1 = null;                     // refcount 1
-SetFoo(null);                   // refcount 0 -> deleted.
+Foo@ f1 = new Foo();   // refcount 1
+SetFoo(f1);            // refcount 2
+Foo@ f2 = GetFoo();    // refcount 3
+@f2 = null;            // refcount 2
+@f1 = null;            // refcount 1
+SetFoo(null);          // refcount 0 -> deleted.
 ```
 
 ## How it works
@@ -98,14 +97,19 @@ Documentation:
    
 ### How RefCountingObject fits into it
 
-xPtr can only be constructed in C++, it's never registered with AngelScript. Since RefCountingObject
-is constructed with refcount=1, the xPtr doesn't increase the refcount when initialized/assigned.
+RefCountingObject just implements the essential `AddRef()` and `Release()` functions needed by reference types:
+https://www.angelcode.com/angelscript/sdk/docs/manual/doc_reg_basicref.html
 
-xPtr derives from xHandle which requires asITypeInfo. To be able to construct it in C++
-without active script context, the type info is stored in the RefCountingObject itself.
-It is loaded when calling `RegisterRefCountingObject()`.
+RefCountingObjectPtr, for the most part, does the typical smart pointer scheme:
+when created, add ref; when deleted, remove ref.
 
-Using xHandle in the registered function signatures relies on xHandle and xPtr being binary-compatible,
-so the AngelScript engine type-puns the xHandle to/from xPtr.
-This probably relies on UB (=undefined behavior) somehow, but it's too convenient to dismiss.
+However, there is one major catch: constructing new objects. Since RefCountingObjectPtr must
+be intuitive in C++, the only acceptable form of creating objects is this:
+`FooPtr foo_ptr = new Foo();`. This reads "the pointer is taken care of" to C++ programmer.
+With AngelScript, though, this means a memory leak because the smart pointer added a reference
+while one already existed (the temporary one). The treatment expected by AngelScript
+is `foo_ptr->Release();` following the assignment, but that would totally baffle a C++ programmer.
+The closure? RefCountingObjectPtr never increases refcount when assigned a raw pointer (in C++).
+Assignment within AngelScript engine is handled by wrapper interface, not available from C++.
+
   
