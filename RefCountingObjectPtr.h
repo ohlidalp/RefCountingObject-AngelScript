@@ -1,6 +1,9 @@
 
-/// @file
-/// @author Adopted from "scripthandle" AngelScript addon, distributed with AngelScript SDK.
+// RefCountingObject system for AngelScript
+// Copyright (c) 2022 Petr Ohlidal
+// https://github.com/only-a-ptr/RefCountingObject-AngelScript
+
+// Adopted from "scripthandle" AngelScript addon, distributed with AngelScript SDK.
 
 #pragma once
 
@@ -45,11 +48,12 @@ protected:
     // Wrapper functions, to be invoked by AngelScript only!
     static void ConstructDefault(RefCountingObjectPtr<T> *self) { new(self) RefCountingObjectPtr(); }
     static void ConstructCopy(RefCountingObjectPtr<T> *self, const RefCountingObjectPtr &o) { new(self) RefCountingObjectPtr(o); }
-    static void ConstructRef(RefCountingObjectPtr<T>* self, void* objhandle);
+    static void ConstructRef(RefCountingObjectPtr<T>* self, void** objhandle);
     static void Destruct(RefCountingObjectPtr<T> *self) { self->~RefCountingObjectPtr(); }
     static T* OpImplCast(RefCountingObjectPtr<T>* self);
-    static RefCountingObjectPtr & OpAssign(RefCountingObjectPtr<T>* self, void* objhandle);
-    static bool OpEquals(RefCountingObjectPtr<T>* self, void* objhandle);
+    static RefCountingObjectPtr & OpAssign(RefCountingObjectPtr<T>* self, void** objhandle);
+    static bool OpEquals(RefCountingObjectPtr<T>* self, void** objhandle);
+    static T* DereferenceHandle(void** objhandle);
 
     T *m_ref;
 };
@@ -63,28 +67,33 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(const char* handle_na
 
     // With C++11 it is possible to use asGetTypeTraits to automatically determine the flags that represent the C++ class
     r = engine->RegisterObjectType(handle_name, sizeof(RefCountingObjectPtr), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<RefCountingObjectPtr>()); assert( r >= 0 );
+
     // construct/destruct
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(RefCountingObjectPtr::ConstructDefault), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    snprintf(decl_buf, DECLBUF_MAX, "void f(%s@&in)", obj_name);
+    snprintf(decl_buf, DECLBUF_MAX, "void f(%s @&in)", obj_name);
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(RefCountingObjectPtr::ConstructRef), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     snprintf(decl_buf, DECLBUF_MAX, "void f(const %s &in)", handle_name);
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_CONSTRUCT, decl_buf, asFUNCTION(RefCountingObjectPtr::ConstructCopy), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_DESTRUCT, "void f()", asFUNCTION(RefCountingObjectPtr::Destruct), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+
     // GC
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(RefCountingObjectPtr,EnumReferences), asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectBehaviour(handle_name, asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(RefCountingObjectPtr, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
+
     // Cast
-    snprintf(decl_buf, DECLBUF_MAX, "%s@ opImplCast()", obj_name);
+    snprintf(decl_buf, DECLBUF_MAX, "%s @ opImplCast()", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCast), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+
     // Assign
     snprintf(decl_buf, DECLBUF_MAX, "%s &opHndlAssign(const %s &in)", handle_name, handle_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHOD(RefCountingObjectPtr, operator=), asCALL_THISCALL); assert( r >= 0 );
-    snprintf(decl_buf, DECLBUF_MAX, "%s &opHndlAssign(const %s@&in)", handle_name, obj_name);
+    snprintf(decl_buf, DECLBUF_MAX, "%s &opHndlAssign(const %s @&in)", handle_name, obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+
     // Equals
     snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s &in) const", handle_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHODPR(RefCountingObjectPtr, operator==, (const RefCountingObjectPtr &) const, bool), asCALL_THISCALL); assert( r >= 0 );
-    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s@&in) const", obj_name);
+    snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s @&in) const", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 }
 
@@ -92,13 +101,16 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(const char* handle_na
 // ---------------------------- Internals ------------------------------
 
 template<class T>
-inline void RefCountingObjectPtr<T>::ConstructRef(RefCountingObjectPtr<T>* self, void* objhandle)
+T* RefCountingObjectPtr<T>::DereferenceHandle(void** objhandle)
 {
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
-    void* obj = *static_cast<void**>(objhandle);
-    T* ref = static_cast<T*>(obj);
+    // Dereference the handle to get the object itself (see AngelScript SDK, addon 'generic handle', function `Assign()` or `Equals()`).
+    return static_cast<T*>(*objhandle);
+}
 
+template<class T>
+inline void RefCountingObjectPtr<T>::ConstructRef(RefCountingObjectPtr<T>* self, void** objhandle)
+{
+    T* ref = DereferenceHandle(objhandle);
     new(self)RefCountingObjectPtr(ref);
 
     // Increase refcount manually because constructor is designed for C++ use only.
@@ -115,32 +127,24 @@ inline T* RefCountingObjectPtr<T>::OpImplCast(RefCountingObjectPtr<T>* self)
 }
 
 template<class T>
-inline RefCountingObjectPtr<T> & RefCountingObjectPtr<T>::OpAssign(RefCountingObjectPtr<T>* self, void* objhandle)
+inline RefCountingObjectPtr<T> & RefCountingObjectPtr<T>::OpAssign(RefCountingObjectPtr<T>* self, void** objhandle)
 {
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
-    void* obj = *static_cast<void**>(objhandle);
-    T* ref = static_cast<T*>(obj);
-
+    T* ref = DereferenceHandle(objhandle);
     self->Set(ref);
     return *self;
 }
 
 template<class T>
-inline bool RefCountingObjectPtr<T>::OpEquals(RefCountingObjectPtr<T>* self, void* objhandle)
+inline bool RefCountingObjectPtr<T>::OpEquals(RefCountingObjectPtr<T>* self, void** objhandle)
 {
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Equals()`.
-    void* obj = *static_cast<void**>(objhandle);
-    T* ref = static_cast<T*>(obj);
-
+    T* ref = DereferenceHandle(objhandle);
     return self->GetRef() == ref;
 }
 
 template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr()
 {
-    m_ref  = 0;
+    m_ref = nullptr;
 
     RCOP_DEBUGTRACE_SELF();
 }
@@ -148,7 +152,7 @@ inline RefCountingObjectPtr<T>::RefCountingObjectPtr()
 template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr(const RefCountingObjectPtr<T> &other)
 {
-    m_ref  = other.m_ref;
+    m_ref = other.m_ref;
 
     AddRefHandle();
 
@@ -160,7 +164,6 @@ inline RefCountingObjectPtr<T>::RefCountingObjectPtr(T *ref)
 {
     // Used directly from C++, DO NOT increase refcount!
     // It's already been done by constructor/factory/AngelScript(if retrieved from script context).
-    // See README.
     // ------------------------------------------
 
     m_ref  = ref;
