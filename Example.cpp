@@ -8,12 +8,13 @@
 #include <cassert>
 #include <angelscript.h>
 
-class Horse: public RefCountingObject<Horse>
-{
-public:
-    Horse(std::string name): RefCountingObject(name) {}
-    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
-};
+// TEMPORARILY moved to HorseHandle.h
+//  class Horse: public RefCountingObject<Horse>
+//  {
+//  public:
+//      Horse(std::string name): RefCountingObject(name) {}
+//      void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
+//  };
 
 class Parrot: public RefCountingObject<Parrot>
 {
@@ -89,7 +90,7 @@ HorsePtr TestHorseFunctionCall(HorsePtr argPtr)
 // This will be a template in the future...
 static void ConstructHorseHandleFromPtr(HorseHandle* self, Horse* obj)
 {
-    new(self)HorseHandle(obj, RefCountingObject<Horse>::GetTypeInfo());
+    new(self)HorseHandle(obj);
 }
 
 // This will be a template in the future...
@@ -107,7 +108,7 @@ static HorseHandle & HorseHandleOpAssign(HorseHandle* self, void* objhandle)
     // See AngelScript SDK, addon 'generic handle', function `Assign()`.
     void* obj = *static_cast<void**>(objhandle);
 
-    self->Set(obj, RefCountingObject<Horse>::GetTypeInfo());
+    self->Set(static_cast<Horse*>(obj));
     return *self;
 }
 

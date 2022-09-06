@@ -14,88 +14,74 @@ static void Destruct(HorseHandle *self) { self->~HorseHandle(); }
 HorseHandle::HorseHandle()
 {
     m_ref  = 0;
-    m_type = 0;
 
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 }
 
 HorseHandle::HorseHandle(const HorseHandle &other)
 {
     m_ref  = other.m_ref;
-    m_type = other.m_type;
 
     AddRefHandle();
 
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 }
 
-HorseHandle::HorseHandle(void *ref, asITypeInfo *type)
+HorseHandle::HorseHandle(Horse *ref)
 {
     m_ref  = ref;
-    m_type = type;
 
     AddRefHandle();
 
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 }
 
 
 
 HorseHandle::~HorseHandle()
 {
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 
     ReleaseHandle();
 }
 
 void HorseHandle::ReleaseHandle()
 {
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 
-    if( m_ref && m_type )
+    if( m_ref )
     {
-        asIScriptEngine *engine = m_type->GetEngine();
-        engine->ReleaseScriptObject(m_ref, m_type);
-
-        engine->Release();
-
-        m_ref  = 0;
-        m_type = 0;
+        m_ref->Release();
+        m_ref = nullptr;
     }
 }
 
 void HorseHandle::AddRefHandle()
 {
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 
-    if( m_ref && m_type )
+    if( m_ref )
     {
-        asIScriptEngine *engine = m_type->GetEngine();
-        engine->AddRefScriptObject(m_ref, m_type);
-
-        // Hold on to the engine so it isn't destroyed while
-        // a reference to a script object is still held
-        engine->AddRef();
+        m_ref->AddRef();
     }
 }
 
 HorseHandle &HorseHandle::operator =(const HorseHandle &other)
 {
-    RCOH_DEBUGTRACE();
+    HORSEHANDLE_DEBUGTRACE();
 
-    Set(other.m_ref, other.m_type);
+    Set(other.m_ref);
 
     return *this;
 }
 
-void HorseHandle::Set(void *ref, asITypeInfo *type)
+void HorseHandle::Set(Horse* ref)
 {
     if( m_ref == ref ) return;
 
     ReleaseHandle();
 
     m_ref  = ref;
-    m_type = type;
 
     AddRefHandle();
 }
@@ -105,25 +91,9 @@ void *HorseHandle::GetRef()
     return m_ref;
 }
 
-asITypeInfo *HorseHandle::GetType() const
-{
-    return m_type;
-}
-
-int HorseHandle::GetTypeId() const
-{
-    if( m_type == 0 ) return 0;
-
-    return m_type->GetTypeId() | asTYPEID_OBJHANDLE;
-}
-
 bool HorseHandle::operator==(const HorseHandle &o) const
 {
-    if( m_ref  == o.m_ref &&
-        m_type == o.m_type )
-        return true;
-
-    return false;
+    return m_ref  == o.m_ref;
 }
 
 bool HorseHandle::operator!=(const HorseHandle &o) const
@@ -136,16 +106,12 @@ void HorseHandle::EnumReferences(asIScriptEngine *inEngine)
     // If we're holding a reference, we'll notify the garbage collector of it
     if (m_ref)
         inEngine->GCEnumCallback(m_ref);
-
-    // The object type itself is also garbage collected
-    if( m_type)
-        inEngine->GCEnumCallback(m_type);
 }
 
 void HorseHandle::ReleaseReferences(asIScriptEngine * /*inEngine*/)
 {
     // Simply clear the content to release the references
-    Set(0, 0);
+    Set(nullptr);
 }
 
 void RegisterHorseHandle(asIScriptEngine *engine)

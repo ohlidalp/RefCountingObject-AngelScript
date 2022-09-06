@@ -5,6 +5,14 @@
 #pragma once
 
 #include <angelscript.h>
+#include "RefCountingObject.h"
+
+class Horse: public RefCountingObject<Horse>
+{
+public:
+    Horse(std::string name): RefCountingObject(name) {}
+    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
+};
 
 class HorseHandle
 {
@@ -12,22 +20,18 @@ public:
     // Constructors
     HorseHandle();
     HorseHandle(const HorseHandle &other);
-    HorseHandle(void *ref, asITypeInfo *type);
+    HorseHandle(Horse *ref);
     ~HorseHandle();
 
     // Copy the stored value from another any object
     HorseHandle &operator=(const HorseHandle &other);
 
     // Set the reference
-    void Set(void *ref, asITypeInfo *type);
+    void Set(Horse* ref);
 
     // Compare equalness
     bool operator==(const HorseHandle &o) const;
     bool operator!=(const HorseHandle &o) const;
-
-    // Returns the type of the reference held
-    asITypeInfo *GetType() const;
-    int          GetTypeId() const;
 
     // Get the reference
     void *GetRef();
@@ -42,8 +46,7 @@ protected:
     void ReleaseHandle();
     void AddRefHandle();
 
-    void        *m_ref;
-    asITypeInfo *m_type;
+    Horse        *m_ref;
 };
 
 void RegisterHorseHandle(asIScriptEngine *engine);
