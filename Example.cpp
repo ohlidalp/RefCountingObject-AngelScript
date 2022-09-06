@@ -100,6 +100,17 @@ static Horse* ImplicitCastHorseHandle(HorseHandle* self)
     return h;
 }
 
+// This will be a template in the future...
+static HorseHandle & HorseHandleOpAssign(HorseHandle* self, void* objhandle)
+{
+    // Dereference the handle to get the object itself.
+    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
+    void* obj = *static_cast<void**>(objhandle);
+
+    self->Set(obj, RefCountingObject<Horse>::GetTypeInfo());
+    return *self;
+}
+
 void ExampleCpp(asIScriptEngine *engine)
 {
     RegisterRefCountingObjectHandle(engine);
@@ -116,6 +127,7 @@ void ExampleCpp(asIScriptEngine *engine)
     RegisterHorseHandle(engine);
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(ImplicitCastHorseHandle), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const Horse@&in)", asFUNCTION(HorseHandleOpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );

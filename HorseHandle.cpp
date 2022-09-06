@@ -225,7 +225,6 @@ void RegisterHorseHandle(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(HorseHandle, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
     // Assign
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const HorseHandle &in)", asMETHOD(HorseHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const ?&in)", asMETHOD(HorseHandle, Assign), asCALL_THISCALL); assert( r >= 0 );
     // Equals
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const HorseHandle &in) const", asMETHODPR(HorseHandle, operator==, (const HorseHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const ?&in) const", asMETHODPR(HorseHandle, Equals, (void*, int) const, bool), asCALL_THISCALL); assert( r >= 0 );

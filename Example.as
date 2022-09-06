@@ -73,6 +73,17 @@ void CustomizedHandleTest()
     @ref3 = null;
     @ref2 = null;
     
+    Print("# adding 2 refs using customized handle and '=' chain\n");
+    @ref3 = @ref2 = @ref1;
+    
+    Print("# create and use 2 anonymous native handles\n");
+    Horse(ref2).Neigh();
+    Horse(ref3).Neigh();
+    
+    Print("# removing 2 refs using customized handle\n");
+    @ref3 = null;
+    @ref2 = null;    
+    
     Print("# assign object to new native handle\n");
     Horse@ nh1 = ref1;
     nh1.Neigh();
