@@ -120,7 +120,7 @@ void CustomizedHandleTest()
     Print("# 1 ref goes out of scope - object will be deleted\n");
     // ref1
 }
-/*
+
 void AppInterfaceNativeHandleTest()
 {
     Print("# creating ref horse\n");
@@ -136,7 +136,7 @@ void AppInterfaceNativeHandleTest()
     PutToStable(Horse("Rossinante"));
 
     Print("# fetching horse back from stable\n");
-    @ho = cast<Horse>(FetchFromStable());
+    @ho = FetchFromStable();
     
     Print("# Dump horse from stable\n");
     PutToStable(null);
@@ -145,25 +145,26 @@ void AppInterfaceNativeHandleTest()
     @ho = null;    
 }
 
-void AppInterfaceGenericHandleTest()
+void AppInterfaceCustomizedHandleTest()
 {
-    Print("# creating ref horse using generic handle\n");
-    RefCountingObjectHandle@ ho = Horse("Jolly Jumper");
+    Print("# creating ref horse using customized handle\n");
+    HorseHandle@ ho = Horse("Jolly Jumper");
     
-    Print("# putting ref horse to stable via explicit generic handle\n");
+    Print("# putting ref horse to stable via explicit customized handle\n");
     PutToStable(ho);    
 
     Print("# Erase local horse ref\n");
     @ho = null;
     
-    Print("# putting unreferenced horse to stable by explicitly constructing generic handle\n");
-    PutToStable(RefCountingObjectHandle(Horse("Rossinante")));
+    Print("# putting unreferenced horse to stable by explicitly constructing customized handle\n");
+    PutToStable(HorseHandle(Horse("Rossinante")));
 
-    Print("# fetching horse back from stable to generic handle\n");
+    Print("# fetching horse back from stable to customized handle\n");
     @ho = FetchFromStable();
     
-    Print("# Extra: Make sure the generic handle from stable is in consistent state\n");
-    Horse@ native = cast<Horse>(ho);
+    Print("# impicitly cast customized handle (from stable) to native handle\n");
+    Horse@ native = @ho;
+    native.Neigh();
     
     Print("# Erase native handle\n");
     @native = null;
@@ -171,9 +172,9 @@ void AppInterfaceGenericHandleTest()
     Print("# Dump horse from stable\n");
     PutToStable(null);
     
-    Print("# Erase local horse ref\n");
-    @ho = null;    
-}*/
+    Print("# 1 ref goes out of scope - object will be deleted\n");
+    // ho
+}
 
 float calc(float a, float b)
 {
@@ -189,14 +190,14 @@ float calc(float a, float b)
     CustomizedHandleTest();
     Print("##  END Customized handle test\n");
     
-/*    Print("##  BEGIN app interface + native handle test\n");
+    Print("##  BEGIN app interface + native handle test\n");
     AppInterfaceNativeHandleTest();
     Print("##  END app interface + native handle test\n");
-  */  
-   /* Print("##  BEGIN app interface + Generic handle test\n");
-    AppInterfaceGenericHandleTest();
+    
+    Print("##  BEGIN app interface + Generic handle test\n");
+    AppInterfaceCustomizedHandleTest();
     Print("##  END app interface + Generic handle test\n");
-    */
+    
      
     Print("# Create parrot\n");
     Parrot@ parr = Parrot();

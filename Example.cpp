@@ -88,9 +88,13 @@ HorsePtr TestHorseFunctionCall(HorsePtr argPtr)
 }
 
 // This will be a template in the future...
-static void ConstructHorseHandleFromPtr(HorseHandle* self, Horse* obj)
+static void ConstructHorseHandleFromPtr(HorseHandle* self, void* objhandle)
 {
-    new(self)HorseHandle(obj);
+    // Dereference the handle to get the object itself.
+    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
+    void* obj = *static_cast<void**>(objhandle);
+
+    new(self)HorseHandle(static_cast<Horse*>(obj));
 }
 
 // This will be a template in the future...
@@ -136,7 +140,7 @@ void ExampleCpp(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
     RegisterHorseHandle(engine);
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse@&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(ImplicitCastHorseHandle), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const Horse@&in)", asFUNCTION(HorseHandleOpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const Horse@&in) const", asFUNCTION(EquineOpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
