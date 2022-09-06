@@ -63,8 +63,16 @@ void CustomizedHandleTest()
     Print("# adding ref using customized handle\n");
     HorseHandle@ ref2 = ref1;
     
+    Print("# Test equality on customized handles\n");
+    Print("`(ref2 == ref1)`: " + (ref2 == ref1) + "\n");
+    Print("`(@ref2 == @ref1)`: " + (@ref2 == @ref1) + "\n");
+    
     Print("# create null customized handle\n");
     HorseHandle@ ref3 = null;
+    
+    Print("# Test equality on null/notnull customized handles\n");
+    Print("`(ref2 == ref3)`: " + (ref2 == ref3) + "\n");
+    Print("`(@ref2 == @ref3)`: " + (@ref2 == @ref3) + "\n");    
     
     Print("# assign object to null customized handle\n");
     @ref3 = ref1;
@@ -87,6 +95,10 @@ void CustomizedHandleTest()
     Print("# assign object to new native handle\n");
     Horse@ nh1 = ref1;
     nh1.Neigh();
+    
+    Print("# Test equality of customized and native handles\n");
+    Print("`(nh1 == ref1)`: " + (nh1 == ref1) + "\n");
+    Print("`(@nh1 == @ref1)`: " + (@nh1 == @ref1) + "\n");     
     
     Print("# assign object to native null handle\n");
     Horse@ nh2 = null;

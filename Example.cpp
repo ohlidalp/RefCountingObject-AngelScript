@@ -111,6 +111,16 @@ static HorseHandle & HorseHandleOpAssign(HorseHandle* self, void* objhandle)
     return *self;
 }
 
+// This will be a template in the future...
+static bool EquineOpEquals(HorseHandle* self, void* objhandle)
+{
+    // Dereference the handle to get the object itself.
+    // See AngelScript SDK, addon 'generic handle', function `Equals()`.
+    void* obj = *static_cast<void**>(objhandle);
+
+    return self->GetRef() == static_cast<Horse*>(obj);
+}
+
 void ExampleCpp(asIScriptEngine *engine)
 {
     RegisterRefCountingObjectHandle(engine);
@@ -128,6 +138,7 @@ void ExampleCpp(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(ImplicitCastHorseHandle), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const Horse@&in)", asFUNCTION(HorseHandleOpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const Horse@&in) const", asFUNCTION(EquineOpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
@@ -166,6 +177,5 @@ void ExampleCpp(asIScriptEngine *engine)
     ptr1 = FetchFromStable();
     std::cout << "# TestHorse(): dump from stable" << std::endl;
     PutToStable(nullptr);
-    std::cout << "# TestHorse(): delete local instance" << std::endl;
-    ptr1 = nullptr;
+    std::cout << "# TestHorse(): 1 ref goes out of scope, object will be deleted" << std::endl;
 }

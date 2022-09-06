@@ -24,7 +24,6 @@ public:
     // Compare equalness
     bool operator==(const HorseHandle &o) const;
     bool operator!=(const HorseHandle &o) const;
-    bool Equals(void *ref, int typeId) const;
 
     // Returns the type of the reference held
     asITypeInfo *GetType() const;
@@ -38,17 +37,10 @@ public:
     void ReleaseReferences(asIScriptEngine *engine);
 
 protected:
-    // These functions need to have access to protected
-    // members in order to call them from the script engine
-    friend void Construct(HorseHandle *self, void *ref, int typeId);
     friend void RegisterHorseHandle(asIScriptEngine *engine);
 
     void ReleaseHandle();
     void AddRefHandle();
-
-    // These shouldn't be called directly by the 
-    // application as they requires an active context
-    HorseHandle &Assign(void *ref, int typeId);
 
     void        *m_ref;
     asITypeInfo *m_type;

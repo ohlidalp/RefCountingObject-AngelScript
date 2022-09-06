@@ -117,51 +117,11 @@ int HorseHandle::GetTypeId() const
     return m_type->GetTypeId() | asTYPEID_OBJHANDLE;
 }
 
-// This method shouldn't be called from the application 
-// directly as it requires an active script context
-HorseHandle &HorseHandle::Assign(void *ref, int typeId)
-{
-    // When receiving a null handle we just clear our memory
-    if( typeId == 0 )
-    {
-        Set(0, 0);
-        return *this;
-    }
-
-    // Dereference received handles to get the object
-    if( typeId & asTYPEID_OBJHANDLE )
-    {
-        // Store the actual reference
-        ref = *(void**)ref;
-        typeId &= ~asTYPEID_OBJHANDLE;
-    }
-
-    // Get the object type
-    asIScriptContext *ctx    = asGetActiveContext();
-    asIScriptEngine  *engine = ctx->GetEngine();
-    asITypeInfo      *type   = engine->GetTypeInfoById(typeId);
-
-    // If the argument is another HorseHandle, we should copy the content instead
-    if( type && strcmp(type->GetName(), "HorseHandle") == 0 )
-    {
-        HorseHandle *r = (HorseHandle*)ref;
-        ref  = r->m_ref;
-        type = r->m_type;
-    }
-
-    Set(ref, type);
-
-    return *this;
-}
-
 bool HorseHandle::operator==(const HorseHandle &o) const
 {
     if( m_ref  == o.m_ref &&
         m_type == o.m_type )
         return true;
-
-    // TODO: If type is not the same, we should attempt to do a dynamic cast,
-    //       which may change the pointer for application registered classes
 
     return false;
 }
@@ -169,28 +129,6 @@ bool HorseHandle::operator==(const HorseHandle &o) const
 bool HorseHandle::operator!=(const HorseHandle &o) const
 {
     return !(*this == o);
-}
-
-bool HorseHandle::Equals(void *ref, int typeId) const
-{
-    // Null handles are received as reference to a null handle
-    if( typeId == 0 )
-        ref = 0;
-
-    // Dereference handles to get the object
-    if( typeId & asTYPEID_OBJHANDLE )
-    {
-        // Compare the actual reference
-        ref = *(void**)ref;
-        typeId &= ~asTYPEID_OBJHANDLE;
-    }
-
-    // TODO: If typeId is not the same, we should attempt to do a dynamic cast, 
-    //       which may change the pointer for application registered classes
-
-    if( ref == m_ref ) return true;
-
-    return false;
 }
 
 void HorseHandle::EnumReferences(asIScriptEngine *inEngine)
@@ -227,7 +165,6 @@ void RegisterHorseHandle(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const HorseHandle &in)", asMETHOD(HorseHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
     // Equals
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const HorseHandle &in) const", asMETHODPR(HorseHandle, operator==, (const HorseHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const ?&in) const", asMETHODPR(HorseHandle, Equals, (void*, int) const, bool), asCALL_THISCALL); assert( r >= 0 );
 }
 
 
