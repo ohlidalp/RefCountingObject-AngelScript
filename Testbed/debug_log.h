@@ -18,7 +18,7 @@ class DebugDummyClass {};
 #define RCOH_DEBUGTRACE() {std::cout << __FUNCTION__ << " " <<RCO_TRACE_ID_OBJ(DebugDummyClass, m_ref) << std::endl;}
 
 // HorseHandle
-#define HORSEHANDLE_DEBUGTRACE() {std::cout << __FUNCTION__ << " " <<RCO_TRACE_ID_HORSEOBJ(DebugDummyClass, m_ref) << std::endl;}
+#define HORSEHANDLE_DEBUGTRACE() {std::cout << __FUNCTION__ << " " <<RCO_TRACE_ID_OBJ(T, m_ref) << std::endl;}
 
 // RefCountingObjectPtr
 #define RCOP_DEBUGTRACE_SELF() {std::cout << __FUNCTION__ << " " << RCO_TRACE_ID_OBJ(T, m_ref) << "" << std::endl;}

@@ -8,13 +8,12 @@
 #include <cassert>
 #include <angelscript.h>
 
-// TEMPORARILY moved to HorseHandle.h
-//  class Horse: public RefCountingObject<Horse>
-//  {
-//  public:
-//      Horse(std::string name): RefCountingObject(name) {}
-//      void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
-//  };
+class Horse: public RefCountingObject<Horse>
+{
+public:
+    Horse(std::string name): RefCountingObject(name) {}
+    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
+};
 
 class Parrot: public RefCountingObject<Parrot>
 {
@@ -24,7 +23,7 @@ public:
     void Chirp() { std::cout << m_name <<": chirp!" << std::endl; }
 };
 
-typedef HorseHandle HorsePtr;
+typedef HorseHandle<Horse> HorsePtr;
 typedef RefCountingObjectPtr<Parrot> ParrotPtr;
 
 Horse* HorseFactory(std::string name)
@@ -102,7 +101,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorseHandle::RegisterHorseHandle(engine);
+    HorsePtr::RegisterHorseHandle(engine);
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );

@@ -7,36 +7,31 @@
 #include <angelscript.h>
 #include "RefCountingObject.h"
 
-class Horse: public RefCountingObject<Horse>
-{
-public:
-    Horse(std::string name): RefCountingObject(name) {}
-    void Neigh() { std::cout << m_name << ": neigh!" << std::endl; }
-};
 
+template<class T>
 class HorseHandle
 {
 public:
     // Constructors
     HorseHandle();
-    HorseHandle(const HorseHandle &other);
-    HorseHandle(Horse *ref); // Only invoke directly using C++! AngelScript must use a wrapper.
+    HorseHandle(const HorseHandle<T> &other);
+    HorseHandle(T *ref); // Only invoke directly using C++! AngelScript must use a wrapper.
     ~HorseHandle();
 
     // Assignments
-    HorseHandle &operator=(const HorseHandle &other);
+    HorseHandle &operator=(const HorseHandle<T> &other);
     // Intentionally omitting raw-pointer assignment, for simplicity - see raw pointer constructor.
 
     // Set the reference
-    void Set(Horse* ref);
+    void Set(T* ref);
 
     // Compare equalness
-    bool operator==(const HorseHandle &o) const;
-    bool operator!=(const HorseHandle &o) const;
+    bool operator==(const HorseHandle<T> &o) const { return m_ref == o.m_ref; }
+    bool operator!=(const HorseHandle<T> &o) const { return m_ref != o.m_ref; }
 
     // Get the reference
-    void *GetRef();
-    Horse* operator->() { return m_ref; }
+    T *GetRef() { return m_ref; }
+    T* operator->() { return m_ref; }
 
     // GC callback
     void EnumReferences(asIScriptEngine *engine);
@@ -50,18 +45,19 @@ protected:
     void AddRefHandle();
 
     // Wrapper functions, to be invoked by AngelScript only!
-    static void ConstructDefault(HorseHandle *self) { new(self) HorseHandle(); }
-    static void ConstructCopy(HorseHandle *self, const HorseHandle &o) { new(self) HorseHandle(o); }
-    static void ConstructRef(HorseHandle* self, void* objhandle);
-    static void Destruct(HorseHandle *self) { self->~HorseHandle(); }
-    static Horse* OpImplCast(HorseHandle* self);
-    static HorseHandle & OpAssign(HorseHandle* self, void* objhandle);
-    static bool OpEquals(HorseHandle* self, void* objhandle);
+    static void ConstructDefault(HorseHandle<T> *self) { new(self) HorseHandle(); }
+    static void ConstructCopy(HorseHandle<T> *self, const HorseHandle &o) { new(self) HorseHandle(o); }
+    static void ConstructRef(HorseHandle<T>* self, void* objhandle);
+    static void Destruct(HorseHandle<T> *self) { self->~HorseHandle(); }
+    static T* OpImplCast(HorseHandle<T>* self);
+    static HorseHandle & OpAssign(HorseHandle<T>* self, void* objhandle);
+    static bool OpEquals(HorseHandle<T>* self, void* objhandle);
 
-    Horse        *m_ref;
+    T *m_ref;
 };
 
-void HorseHandle::RegisterHorseHandle(asIScriptEngine *engine)
+template<class T>
+void HorseHandle<T>::RegisterHorseHandle(asIScriptEngine *engine)
 {
     int r;
 
@@ -88,13 +84,13 @@ void HorseHandle::RegisterHorseHandle(asIScriptEngine *engine)
 
 // ---------------------------- Internals ------------------------------
 
-
-inline void HorseHandle::ConstructRef(HorseHandle* self, void* objhandle)
+template<class T>
+inline void HorseHandle<T>::ConstructRef(HorseHandle<T>* self, void* objhandle)
 {
     // Dereference the handle to get the object itself.
     // See AngelScript SDK, addon 'generic handle', function `Assign()`.
     void* obj = *static_cast<void**>(objhandle);
-    Horse* ref = static_cast<Horse*>(obj);
+    T* ref = static_cast<T*>(obj);
 
     new(self)HorseHandle(ref);
 
@@ -103,42 +99,47 @@ inline void HorseHandle::ConstructRef(HorseHandle* self, void* objhandle)
         ref->AddRef();
 }
 
-inline Horse* HorseHandle::OpImplCast(HorseHandle* self)
+template<class T>
+inline T* HorseHandle<T>::OpImplCast(HorseHandle<T>* self)
 {
-    Horse* ref = static_cast<Horse*>(self->GetRef());
+    T* ref = self->GetRef();
     ref->AddRef();
     return ref;
 }
 
-inline HorseHandle & HorseHandle::OpAssign(HorseHandle* self, void* objhandle)
+template<class T>
+inline HorseHandle<T> & HorseHandle<T>::OpAssign(HorseHandle<T>* self, void* objhandle)
 {
     // Dereference the handle to get the object itself.
     // See AngelScript SDK, addon 'generic handle', function `Assign()`.
     void* obj = *static_cast<void**>(objhandle);
-    Horse* ref = static_cast<Horse*>(obj);
+    T* ref = static_cast<T*>(obj);
 
     self->Set(ref);
     return *self;
 }
 
-inline bool HorseHandle::OpEquals(HorseHandle* self, void* objhandle)
+template<class T>
+inline bool HorseHandle<T>::OpEquals(HorseHandle<T>* self, void* objhandle)
 {
     // Dereference the handle to get the object itself.
     // See AngelScript SDK, addon 'generic handle', function `Equals()`.
     void* obj = *static_cast<void**>(objhandle);
-    Horse* ref = static_cast<Horse*>(obj);
+    T* ref = static_cast<T*>(obj);
 
     return self->GetRef() == ref;
 }
 
-inline HorseHandle::HorseHandle()
+template<class T>
+inline HorseHandle<T>::HorseHandle()
 {
     m_ref  = 0;
 
     HORSEHANDLE_DEBUGTRACE();
 }
 
-inline HorseHandle::HorseHandle(const HorseHandle &other)
+template<class T>
+inline HorseHandle<T>::HorseHandle(const HorseHandle<T> &other)
 {
     m_ref  = other.m_ref;
 
@@ -147,7 +148,8 @@ inline HorseHandle::HorseHandle(const HorseHandle &other)
     HORSEHANDLE_DEBUGTRACE();
 }
 
-inline HorseHandle::HorseHandle(Horse *ref)
+template<class T>
+inline HorseHandle<T>::HorseHandle(T *ref)
 {
     // Used directly from C++, DO NOT increase refcount!
     // It's already been done by constructor/factory/AngelScript(if retrieved from script context).
@@ -159,14 +161,16 @@ inline HorseHandle::HorseHandle(Horse *ref)
     HORSEHANDLE_DEBUGTRACE();
 }
 
-inline HorseHandle::~HorseHandle()
+template<class T>
+inline HorseHandle<T>::~HorseHandle()
 {
     HORSEHANDLE_DEBUGTRACE();
 
     ReleaseHandle();
 }
 
-inline void HorseHandle::ReleaseHandle()
+template<class T>
+inline void HorseHandle<T>::ReleaseHandle()
 {
     HORSEHANDLE_DEBUGTRACE();
 
@@ -177,7 +181,8 @@ inline void HorseHandle::ReleaseHandle()
     }
 }
 
-inline void HorseHandle::AddRefHandle()
+template<class T>
+inline void HorseHandle<T>::AddRefHandle()
 {
     HORSEHANDLE_DEBUGTRACE();
 
@@ -187,7 +192,8 @@ inline void HorseHandle::AddRefHandle()
     }
 }
 
-inline HorseHandle &HorseHandle::operator =(const HorseHandle &other)
+template<class T>
+inline HorseHandle<T> &HorseHandle<T>::operator =(const HorseHandle<T> &other)
 {
     HORSEHANDLE_DEBUGTRACE();
 
@@ -196,7 +202,8 @@ inline HorseHandle &HorseHandle::operator =(const HorseHandle &other)
     return *this;
 }
 
-inline void HorseHandle::Set(Horse* ref)
+template<class T>
+inline void HorseHandle<T>::Set(T* ref)
 {
     if( m_ref == ref ) return;
 
@@ -207,29 +214,16 @@ inline void HorseHandle::Set(Horse* ref)
     AddRefHandle();
 }
 
-inline void *HorseHandle::GetRef()
-{
-    return m_ref;
-}
-
-inline bool HorseHandle::operator==(const HorseHandle &o) const
-{
-    return m_ref  == o.m_ref;
-}
-
-inline bool HorseHandle::operator!=(const HorseHandle &o) const
-{
-    return !(*this == o);
-}
-
-inline void HorseHandle::EnumReferences(asIScriptEngine *inEngine)
+template<class T>
+inline void HorseHandle<T>::EnumReferences(asIScriptEngine *inEngine)
 {
     // If we're holding a reference, we'll notify the garbage collector of it
     if (m_ref)
         inEngine->GCEnumCallback(m_ref);
 }
 
-inline void HorseHandle::ReleaseReferences(asIScriptEngine * /*inEngine*/)
+template<class T>
+inline void HorseHandle<T>::ReleaseReferences(asIScriptEngine * /*inEngine*/)
 {
     // Simply clear the content to release the references
     Set(nullptr);
