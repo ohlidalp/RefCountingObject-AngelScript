@@ -1,7 +1,9 @@
 
 # RefCountingObject system for AngelScript
 
-_Created by Petr Ohlídal_
+_Created 2022 by Petr Ohlídal_
+
+_https://github.com/only-a-ptr/RefCountingObject-AngelScript_
 
 This mini-framework lets you use a single reference counting mechanism for both
 AngelScript's built-in garbage collection and C++ smart pointers. This allows you to fluently
@@ -20,6 +22,8 @@ I wanted a classic C++ smart pointer (like `std::shared_ptr<>`) that would do it
 and which would remain fully functional for C++ even if built without AngelScript.
 
 ## How to use
+
+The project was developed against AngelScript 2.35.1; but any reasonably recent version should do.
 
 To install, just copy the 'RefCountingObject\*' files to your project.
 
@@ -43,8 +47,8 @@ static void SetFoo(FooPtr f) { gf = f; }
 static FooPtr GetFoo() { return gf; }
 ```
 
-Register `RefCountingObjectHandle` with the script engine
-and use it to register your interface.
+Register the smart pointers with `RegisterRefCountingObjectPtr()`
+and use them in your application interface.
 
 ```
 FooPtr::RegisterRefCountingObjectPtr("FooPtr", "Foo", engine);
