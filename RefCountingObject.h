@@ -18,13 +18,11 @@ public:
         RCO_DEBUGTRACE();
     }
 
-#ifdef RCO_ENABLE_DEBUGTRACE
     RefCountingObject(std::string name)
     {
         m_name = name;
         RCO_DEBUGTRACE();
     }
-#endif
 
     virtual ~RefCountingObject()
     {
@@ -58,8 +56,6 @@ public:
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); assert( r >= 0 );
     }
 
-#ifdef RCO_ENABLE_DEBUGTRACE
     std::string m_name;
-#endif
     int m_refcount = 1; // Initial refcount for any angelscript object.
 };

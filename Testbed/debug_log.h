@@ -1,8 +1,17 @@
 #pragma once
 
-#ifdef RCO_ENABLE_DEBUGTRACE
 
-#include <iostream> // std::cout
+
+#include <iostream>
+
+#define RefCoutingObjectPtr_DEBUGTRACE(_arg_) {             \
+    std::cout << __FUNCTION__ << " ref: (" << m_ref << ")"; \
+    if (_arg_)                                              \
+        std::cout << ", arg: (" << _arg_ << ")";            \
+    std::cout << std::endl;                                 \
+}
+
+
 
 class DebugDummyClass {};
 
@@ -25,13 +34,4 @@ class DebugDummyClass {};
 // RefCountingObject
 #define RCO_DEBUGTRACE() {std::cout << __FUNCTION__ << " '"<<m_name << "' new refcount:" << m_refcount << std::endl; }
 
-#else
-#define RCO_TRACE_ID_OBJ()
-#define RCO_TRACE_ID_PTR()
-#define FUNC_DEBUGTRACE()
-#define RCOH_DEBUGTRACE()
-#define RCOP_DEBUGTRACE_SELF()
-#define RCOP_DEBUGTRACE_ARG_PTR()
-#define RCOP_DEBUGTRACE_ARG_OBJ()
-#define RCO_DEBUGTRACE()
-#endif
+

@@ -8,8 +8,10 @@
 #pragma once
 
 #include <angelscript.h>
-#include "RefCountingObject.h"
-#include "Testbed/debug_log.h"
+
+#if !defined(RefCoutingObjectPtr_DEBUGTRACE)
+#   define RefCoutingObjectPtr_DEBUGTRACE
+#endif
 
 template<class T>
 class RefCountingObjectPtr
@@ -146,43 +148,38 @@ inline RefCountingObjectPtr<T>::RefCountingObjectPtr()
 {
     m_ref = nullptr;
 
-    RCOP_DEBUGTRACE_SELF();
+    RefCoutingObjectPtr_DEBUGTRACE(nullptr);
 }
 
 template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr(const RefCountingObjectPtr<T> &other)
 {
+    RefCoutingObjectPtr_DEBUGTRACE(other.m_ref);
     m_ref = other.m_ref;
-
     AddRefHandle();
-
-    RCOP_DEBUGTRACE_ARG_PTR(other);
 }
 
 template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr(T *ref)
 {
     // Used directly from C++, DO NOT increase refcount!
-    // It's already been done by constructor/factory/AngelScript(if retrieved from script context).
+    // It's already been done by constructor/factory/AngelScript (if retrieved from script context).
     // ------------------------------------------
-
+    RefCoutingObjectPtr_DEBUGTRACE(ref);
     m_ref  = ref;
-
-    RCOP_DEBUGTRACE_ARG_OBJ(ref);
 }
 
 template<class T>
 inline RefCountingObjectPtr<T>::~RefCountingObjectPtr()
 {
-    RCOP_DEBUGTRACE_SELF();
-
+    RefCoutingObjectPtr_DEBUGTRACE(nullptr);
     ReleaseHandle();
 }
 
 template<class T>
 inline void RefCountingObjectPtr<T>::ReleaseHandle()
 {
-    RCOP_DEBUGTRACE_SELF();
+    RefCoutingObjectPtr_DEBUGTRACE(nullptr);
 
     if( m_ref )
     {
@@ -194,7 +191,7 @@ inline void RefCountingObjectPtr<T>::ReleaseHandle()
 template<class T>
 inline void RefCountingObjectPtr<T>::AddRefHandle()
 {
-    RCOP_DEBUGTRACE_SELF();
+    RefCoutingObjectPtr_DEBUGTRACE(nullptr);
 
     if( m_ref )
     {
@@ -205,22 +202,19 @@ inline void RefCountingObjectPtr<T>::AddRefHandle()
 template<class T>
 inline RefCountingObjectPtr<T> &RefCountingObjectPtr<T>::operator =(const RefCountingObjectPtr<T> &other)
 {
-    RCOP_DEBUGTRACE_ARG_PTR(other);
-
+    RefCoutingObjectPtr_DEBUGTRACE(other.m_ref);
     Set(other.m_ref);
-
     return *this;
 }
 
 template<class T>
 inline void RefCountingObjectPtr<T>::Set(T* ref)
 {
-    if( m_ref == ref ) return;
+    if( m_ref == ref )
+        return;
 
     ReleaseHandle();
-
     m_ref  = ref;
-
     AddRefHandle();
 }
 
