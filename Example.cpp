@@ -24,7 +24,7 @@ public:
     void Chirp() { std::cout << m_name <<": chirp!" << std::endl; }
 };
 
-typedef RefCountingObjectPtr<Horse> HorsePtr;
+typedef HorseHandle HorsePtr;
 typedef RefCountingObjectPtr<Parrot> ParrotPtr;
 
 Horse* HorseFactory(std::string name)
@@ -42,7 +42,8 @@ static ParrotPtr g_aviary;
 
 void PutToStable(HorsePtr horse)
 {
-    std::cout << __FUNCTION__ << ": called with '" << (horse!=nullptr ? horse->m_name : "nullptr") << "'"  << std::endl;
+    std::string name = (horse!=nullptr ? horse->m_name : "nullptr");
+    std::cout << __FUNCTION__ << ": called with '" << name << "'"  << std::endl;
 
     if (horse != nullptr && g_stable != nullptr)
     {
@@ -140,5 +141,9 @@ void ExampleCpp(asIScriptEngine *engine)
     ptr1 = FetchFromStable();
     std::cout << "# ExampleCpp(): dump from stable" << std::endl;
     PutToStable(nullptr);
+    std::cout << "# ExampleCpp(): create second object, assign to existing null handle" << std::endl;
+    ptr2 = HorseFactory("Gunpowder");
+    std::cout << "# ExampleCpp(): release ref" << std::endl;
+    ptr2 = nullptr;
     std::cout << "# ExampleCpp(): 1 ref goes out of scope, object will be deleted" << std::endl;
 }

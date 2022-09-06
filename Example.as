@@ -194,9 +194,9 @@ float calc(float a, float b)
     AppInterfaceNativeHandleTest();
     Print("##  END app interface + native handle test\n");
     
-    Print("##  BEGIN app interface + Generic handle test\n");
+    Print("##  BEGIN app interface + Customized handle test\n");
     AppInterfaceCustomizedHandleTest();
-    Print("##  END app interface + Generic handle test\n");
+    Print("##  END app interface + Customized handle test\n");
     
      
     Print("# Create parrot\n");

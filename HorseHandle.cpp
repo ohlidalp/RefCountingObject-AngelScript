@@ -29,9 +29,12 @@ HorseHandle::HorseHandle(const HorseHandle &other)
 
 HorseHandle::HorseHandle(Horse *ref)
 {
-    m_ref  = ref;
+    // Used directly from C++, DO NOT increase refcount!
+    // It's already been done by constructor/factory/AngelScript(if retrieved from script context).
+    // See README.
+    // ------------------------------------------
 
-    AddRefHandle();
+    m_ref  = ref;
 
     HORSEHANDLE_DEBUGTRACE();
 }
@@ -123,6 +126,10 @@ static void ConstructHorseHandleFromPtr(HorseHandle* self, void* objhandle)
     Horse* ref = static_cast<Horse*>(obj);
 
     new(self)HorseHandle(ref);
+
+    // Increase refcount manually because constructor is designed for C++ use only.
+    if (ref)
+        ref->AddRef();
 }
 
 // This will be a template in the future...

@@ -20,11 +20,12 @@ public:
     // Constructors
     HorseHandle();
     HorseHandle(const HorseHandle &other);
-    HorseHandle(Horse *ref);
+    HorseHandle(Horse *ref); // Only invoke directly using C++! AngelScript must use a wrapper.
     ~HorseHandle();
 
-    // Copy the stored value from another any object
+    // Assignments
     HorseHandle &operator=(const HorseHandle &other);
+    // Intentionally omitting raw-pointer assignment, for simplicity - see raw pointer constructor.
 
     // Set the reference
     void Set(Horse* ref);
@@ -35,6 +36,7 @@ public:
 
     // Get the reference
     void *GetRef();
+    Horse* operator->() { return m_ref; }
 
     // GC callback
     void EnumReferences(asIScriptEngine *engine);
