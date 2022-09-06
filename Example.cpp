@@ -102,7 +102,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    RegisterHorseHandle(engine);
+    HorseHandle::RegisterHorseHandle(engine);
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );

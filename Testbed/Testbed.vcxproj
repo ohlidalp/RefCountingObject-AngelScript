@@ -160,7 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Example.cpp" />
-    <ClCompile Include="..\HorseHandle.cpp" />
     <ClCompile Include="..\RefCountingObjectHandle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="scriptstdstring.cpp" />

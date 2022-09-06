@@ -43,8 +43,5 @@
       <Filter>RefCountingObject</Filter>
     </ClCompile>
     <ClCompile Include="..\Example.cpp" />
-    <ClCompile Include="..\HorseHandle.cpp">
-      <Filter>testbed</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
