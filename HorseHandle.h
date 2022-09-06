@@ -26,9 +26,6 @@ public:
     bool operator!=(const HorseHandle &o) const;
     bool Equals(void *ref, int typeId) const;
 
-    // Dynamic cast to desired handle type
-    void Cast(void **outRef, int typeId);
-
     // Returns the type of the reference held
     asITypeInfo *GetType() const;
     int          GetTypeId() const;

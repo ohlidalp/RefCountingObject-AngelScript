@@ -92,6 +92,14 @@ static void ConstructHorseHandleFromPtr(HorseHandle* self, Horse* obj)
     new(self)HorseHandle(obj, RefCountingObject<Horse>::GetTypeInfo());
 }
 
+// This will be a template in the future...
+static Horse* ImplicitCastHorseHandle(HorseHandle* self)
+{
+    Horse* h = static_cast<Horse*>(self->GetRef());
+    h->AddRef();
+    return h;
+}
+
 void ExampleCpp(asIScriptEngine *engine)
 {
     RegisterRefCountingObjectHandle(engine);
@@ -107,6 +115,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // Register handle type
     RegisterHorseHandle(engine);
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(ImplicitCastHorseHandle), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );

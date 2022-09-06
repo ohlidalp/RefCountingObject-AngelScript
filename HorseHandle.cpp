@@ -193,30 +193,6 @@ bool HorseHandle::Equals(void *ref, int typeId) const
     return false;
 }
 
-// AngelScript: used as '@obj = cast<obj>(ref);'
-void HorseHandle::Cast(void **outRef, int typeId)
-{
-    // If we hold a null handle, then just return null
-    if( m_type == 0 )
-    {
-        *outRef = 0;
-        return;
-    }
-    
-    // It is expected that the outRef is always a handle
-    assert( typeId & asTYPEID_OBJHANDLE );
-
-    // Compare the type id of the actual object
-    typeId &= ~asTYPEID_OBJHANDLE;
-    asIScriptEngine  *engine = m_type->GetEngine();
-    asITypeInfo      *type   = engine->GetTypeInfoById(typeId);
-
-    *outRef = 0;
-
-    // RefCastObject will increment the refCount of the returned object if successful
-    engine->RefCastObject(m_ref, m_type, type, outRef);
-}
-
 void HorseHandle::EnumReferences(asIScriptEngine *inEngine)
 {
     // If we're holding a reference, we'll notify the garbage collector of it
@@ -240,16 +216,17 @@ void RegisterHorseHandle(asIScriptEngine *engine)
 
     // With C++11 it is possible to use asGetTypeTraits to automatically determine the flags that represent the C++ class
     r = engine->RegisterObjectType("HorseHandle", sizeof(HorseHandle), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<HorseHandle>()); assert( r >= 0 );
-
+    // construct/destruct
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(Construct, (HorseHandle *), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(const HorseHandle &in)", asFUNCTIONPR(Construct, (HorseHandle *, const HorseHandle &), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(Destruct, (HorseHandle *), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+    // GC
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(HorseHandle,EnumReferences), asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(HorseHandle, ReleaseReferences), asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("HorseHandle", "void opCast(?&out)", asMETHODPR(HorseHandle, Cast, (void **, int), void), asCALL_THISCALL); assert( r >= 0 );
+    // Assign
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const HorseHandle &in)", asMETHOD(HorseHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const ?&in)", asMETHOD(HorseHandle, Assign), asCALL_THISCALL); assert( r >= 0 );
+    // Equals
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const HorseHandle &in) const", asMETHODPR(HorseHandle, operator==, (const HorseHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const ?&in) const", asMETHODPR(HorseHandle, Equals, (void*, int) const, bool), asCALL_THISCALL); assert( r >= 0 );
 }

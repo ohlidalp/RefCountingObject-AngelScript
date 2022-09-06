@@ -74,12 +74,12 @@ void CustomizedHandleTest()
     @ref2 = null;
     
     Print("# assign object to new native handle\n");
-    Horse@ nh1 = cast<Horse>(ref1);
+    Horse@ nh1 = ref1;
     nh1.Neigh();
     
     Print("# assign object to native null handle\n");
     Horse@ nh2 = null;
-    @nh2 = cast<Horse>(ref1);
+    @nh2 = ref1;
     nh2.Neigh();
     
     Print("# clear native handle\n");
