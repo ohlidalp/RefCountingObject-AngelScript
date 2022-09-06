@@ -42,7 +42,6 @@ static ParrotPtr g_aviary;
 
 void PutToStable(HorsePtr horse)
 {
-    // TODO: check type
     std::cout << __FUNCTION__ << ": called with '" << (horse!=nullptr ? horse->m_name : "nullptr") << "'"  << std::endl;
 
     if (horse != nullptr && g_stable != nullptr)
@@ -81,50 +80,13 @@ ParrotPtr FetchFromAviary()
     return g_aviary;
 }
 
-HorsePtr TestHorseFunctionCall(HorsePtr argPtr)
+HorsePtr ExampleCppFunctionCall(HorsePtr argPtr)
 {
     std::cout << "TestHorseFunctionCall() returning" << std::endl;
     return argPtr;
 }
 
-// This will be a template in the future...
-static void ConstructHorseHandleFromPtr(HorseHandle* self, void* objhandle)
-{
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
-    void* obj = *static_cast<void**>(objhandle);
 
-    new(self)HorseHandle(static_cast<Horse*>(obj));
-}
-
-// This will be a template in the future...
-static Horse* ImplicitCastHorseHandle(HorseHandle* self)
-{
-    Horse* h = static_cast<Horse*>(self->GetRef());
-    h->AddRef();
-    return h;
-}
-
-// This will be a template in the future...
-static HorseHandle & HorseHandleOpAssign(HorseHandle* self, void* objhandle)
-{
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Assign()`.
-    void* obj = *static_cast<void**>(objhandle);
-
-    self->Set(static_cast<Horse*>(obj));
-    return *self;
-}
-
-// This will be a template in the future...
-static bool EquineOpEquals(HorseHandle* self, void* objhandle)
-{
-    // Dereference the handle to get the object itself.
-    // See AngelScript SDK, addon 'generic handle', function `Equals()`.
-    void* obj = *static_cast<void**>(objhandle);
-
-    return self->GetRef() == static_cast<Horse*>(obj);
-}
 
 void ExampleCpp(asIScriptEngine *engine)
 {
@@ -140,10 +102,6 @@ void ExampleCpp(asIScriptEngine *engine)
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f(string name)", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
     RegisterHorseHandle(engine);
-    r = engine->RegisterObjectBehaviour("HorseHandle", asBEHAVE_CONSTRUCT, "void f(Horse@&in)", asFUNCTION(ConstructHorseHandleFromPtr), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "Horse@ opImplCast()", asFUNCTION(ImplicitCastHorseHandle), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "HorseHandle &opHndlAssign(const Horse@&in)", asFUNCTION(HorseHandleOpAssign), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("HorseHandle", "bool opEquals(const Horse@&in) const", asFUNCTION(EquineOpEquals), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorseHandle@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorseHandle@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
@@ -162,25 +120,25 @@ void ExampleCpp(asIScriptEngine *engine)
     // Test horse interface from C++
     std::vector<HorsePtr> horses;
 
-    std::cout << "# TestHorse(): construct" << std::endl;
+    std::cout << "# ExampleCpp(): construct" << std::endl;
     HorsePtr ptr1 = HorseFactory("Artax");
-    std::cout << "# TestHorse(): add ref" << std::endl;
+    std::cout << "# ExampleCpp(): add ref" << std::endl;
     HorsePtr ptr2 = ptr1;
-    std::cout << "# TestHorse: vector push" << std::endl;
+    std::cout << "# ExampleCpp: vector push" << std::endl;
     horses.push_back(ptr1);
-    std::cout << "# TestHorse(): release ref" << std::endl;
+    std::cout << "# ExampleCpp(): release ref" << std::endl;
     ptr2 = nullptr;
-    std::cout << "# TestHorse(): vector pop" << std::endl;
+    std::cout << "# ExampleCpp(): vector pop" << std::endl;
     horses.pop_back();
-    std::cout << "# TestHorse(): function call" << std::endl;
-    ptr1 = TestHorseFunctionCall(ptr1);
-    std::cout << "# TestHorse(): put to stable" << std::endl;
+    std::cout << "# ExampleCpp(): function call" << std::endl;
+    ptr1 = ExampleCppFunctionCall(ptr1);
+    std::cout << "# ExampleCpp(): put to stable" << std::endl;
     PutToStable(ptr1);
-    std::cout << "# TestHorse(): delete local ref" << std::endl;
+    std::cout << "# ExampleCpp(): delete local ref" << std::endl;
     ptr1 = nullptr;
-    std::cout << "# TestHorse(): fetch from stable" << std::endl;
+    std::cout << "# ExampleCpp(): fetch from stable" << std::endl;
     ptr1 = FetchFromStable();
-    std::cout << "# TestHorse(): dump from stable" << std::endl;
+    std::cout << "# ExampleCpp(): dump from stable" << std::endl;
     PutToStable(nullptr);
-    std::cout << "# TestHorse(): 1 ref goes out of scope, object will be deleted" << std::endl;
+    std::cout << "# ExampleCpp(): 1 ref goes out of scope, object will be deleted" << std::endl;
 }
