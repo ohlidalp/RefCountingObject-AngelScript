@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <iostream>
 #include <angelscript.h>
 
 class Horse: public RefCountingObject<Horse>
@@ -90,25 +91,25 @@ void ExampleCpp(asIScriptEngine *engine)
 
     // -- Horse --
     // Registering the reference type
-    Horse::RegisterRefCountingObject("Horse", engine);
+    Horse::RegisterRefCountingObject(engine, "Horse");
     r = engine->RegisterObjectMethod("Horse", "void Neigh()", asMETHOD(Horse, Neigh), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Horse", asBEHAVE_FACTORY, "Horse@ f()", asFUNCTION(HorseFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterRefCountingObjectPtr("HorsePtr", "Horse", engine);
+    HorsePtr::RegisterRefCountingObjectPtr(engine, "HorsePtr", "Horse");
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToStable(HorsePtr@ h)", asFUNCTION(PutToStable), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("HorsePtr@ FetchFromStable()", asFUNCTION(FetchFromStable), asCALL_CDECL); assert( r >= 0 );
 
     // -- Parrot --
     // Registering the reference type
-    Parrot::RegisterRefCountingObject("Parrot", engine);
+    Parrot::RegisterRefCountingObject(engine, "Parrot");
     r = engine->RegisterObjectMethod("Parrot", "void Idle()", asMETHOD(Parrot, Idle), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("Parrot", "void Chirp()", asMETHOD(Parrot, Chirp), asCALL_THISCALL); assert( r >= 0 );
     // Registering the factory behaviour
     r = engine->RegisterObjectBehaviour("Parrot", asBEHAVE_FACTORY, "Parrot@ f()", asFUNCTION(ParrotFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterRefCountingObjectPtr("ParrotPtr", "Parrot", engine);
+    HorsePtr::RegisterRefCountingObjectPtr(engine, "ParrotPtr", "Parrot");
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToAviary(ParrotPtr@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("ParrotPtr@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
@@ -117,13 +118,13 @@ void ExampleCpp(asIScriptEngine *engine)
     std::vector<HorsePtr> horses;
 
     std::cout << "# ExampleCpp(): construct" << std::endl;
-    HorsePtr ptr1 = HorseFactory(); // "Artax"
+    HorsePtr ptr1 = HorsePtr::Bind(HorseFactory()); // "Artax"
     std::cout << "# ExampleCpp(): add ref" << std::endl;
     HorsePtr ptr2 = ptr1;
     std::cout << "# ExampleCpp: vector push" << std::endl;
     horses.push_back(ptr1);
     std::cout << "# ExampleCpp(): release ref" << std::endl;
-    ptr2 = nullptr;
+    ptr2 = HorsePtr();
     std::cout << "# ExampleCpp(): vector pop" << std::endl;
     horses.pop_back();
     std::cout << "# ExampleCpp(): function call" << std::endl;
@@ -131,14 +132,14 @@ void ExampleCpp(asIScriptEngine *engine)
     std::cout << "# ExampleCpp(): put to stable" << std::endl;
     PutToStable(ptr1);
     std::cout << "# ExampleCpp(): delete local ref" << std::endl;
-    ptr1 = nullptr;
+    ptr1 = HorsePtr();
     std::cout << "# ExampleCpp(): fetch from stable" << std::endl;
     ptr1 = FetchFromStable();
     std::cout << "# ExampleCpp(): dump from stable" << std::endl;
-    PutToStable(nullptr);
+    PutToStable(HorsePtr());
     std::cout << "# ExampleCpp(): create second object, assign to existing null handle" << std::endl;
-    ptr2 = HorseFactory(); // "Gunpowder"
+    ptr2 = HorsePtr::Bind(HorseFactory()); // "Gunpowder"
     std::cout << "# ExampleCpp(): release ref" << std::endl;
-    ptr2 = nullptr;
+    ptr2 = HorsePtr();
     std::cout << "# ExampleCpp(): 1 ref goes out of scope, object will be deleted" << std::endl;
 }
