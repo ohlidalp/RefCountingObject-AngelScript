@@ -46,7 +46,7 @@ public:
     bool operator!=(const nullptr_t) const { return m_ref != nullptr; }
 
     // Get the reference
-    T *GetRef() { return m_ref; }
+    T *GetRef() { return m_ref; } // To be invoked from C++ only!!
     T* operator->() { return m_ref; }
     T* operator->() const { return m_ref; }
 
@@ -110,6 +110,10 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIE
 
     // Cast
     snprintf(decl_buf, DECLBUF_MAX, "%s @ opImplCast()", obj_name);
+    r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCast), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
+
+    // GetRef
+    snprintf(decl_buf, DECLBUF_MAX, "%s @ GetHandle()", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCast), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
 
     // Assign

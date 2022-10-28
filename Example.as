@@ -24,7 +24,9 @@ void CustomizedPtrTest()
 {
     Print("# creating refcounted object using customized handle\n");
     HorsePtr@ ref1 = Horse(); // 'Shadowfax'
-    //ref1.Neigh(); // Ptrs don't work this way
+    
+    Print("# create and test anonymous native handle using GetHandle() method\n");
+    ref1.GetHandle().Neigh();
     
     Print("# adding ref using customized handle\n");
     HorsePtr@ ref2 = ref1;
