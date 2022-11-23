@@ -106,18 +106,11 @@ https://www.angelcode.com/angelscript/sdk/docs/manual/doc_reg_basicref.html
 RefCountingObjectPtr, for the most part, does the typical smart pointer scheme:
 when created, add ref; when deleted, remove ref.
 
-However, there is one major catch: constructing new objects. Since RefCountingObjectPtr must
-be intuitive in C++, the only acceptable form of creating objects is this:
+To prevent breaking the refcount, constructing RefCountingObjectPtr
+from raw pointer is prevented and the programmer must write this:
 ```
-FooPtr foo_ptr = new Foo(); // C++ programmer reads "Pointer is taken care of".
+FooPtr foo_ptr = FooPtr::Bind(new Foo()); // Do NOT bind the same object twice!
 ```
-With AngelScript, though, this means a memory leak because the smart pointer added a reference
-while one already existed (the temporary one). The treatment expected by AngelScript is:
-```
-FooPtr foo_ptr = new Foo();
-foo_ptr->Release(); // C++ programmer goes "WTF ?!?"
-```
-**The closure:** RefCountingObjectPtr never increases refcount when assigned a raw pointer (in C++).
 Assignment within AngelScript engine is handled by wrapper interface, not available from C++.
 
   
