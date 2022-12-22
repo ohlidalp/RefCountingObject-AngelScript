@@ -29,37 +29,42 @@ To install, just copy the 'RefCountingObject\*' files to your project.
 
 Define your C++ classes by implementing `RefCountingObject`
 and calling `RegisterRefCountingObject()` for each type.
+**Important:** Register the factory function as `"@+"` (auto handle)
+to satisfy the script ref counting expectation, see "How it works" below.
 
-```
+```cpp
 class Foo: RefCountingObject<Foo>{}
-Foo::RegisterRefCountingObject("Foo", engine);
+Foo::RegisterRefCountingObject(engine, "Foo");
+
+static Foo* FooFactory() { return new Foo(); }
+engine->RegisterObjectBehaviour("Foo", asBEHAVE_FACTORY, "Foo@+ f()", asFUNCTION(FooFactory), asCALL_CDECL);
 ```
 
 Define your C++ smart pointers by qualifying `RefCountingObjectPtr<>`
+and register each with `RegisterRefCountingObjectPtr()`.
 and use them in your interfaces. 
 These will become usable interchangeably from both C++ and script.
 
-```
+```cpp
 typedef RefCountingObjectPtr<Foo> FooPtr;
-// demo API:
+FooPtr::RegisterRefCountingObjectPtr(engine, "FooPtr", "Foo");
+```
+
+Finally, use the smart pointers in your application interface.
+
+```cpp
 static FooPtr gf;
-static void SetFoo(FooPtr f) { gf = f; }
-static FooPtr GetFoo() { return gf; }
-```
 
-Register the smart pointers with `RegisterRefCountingObjectPtr()`
-and use them in your application interface.
-
-```
-FooPtr::RegisterRefCountingObjectPtr("FooPtr", "Foo", engine);
-// ...
+void SetFoo(FooPtr f) { gf = f; }
 engine->RegisterGlobalFunction("void SetFoo(FooPtr@)", asFUNCTION(SetFoo), asCALL_CDECL);
+
+FooPtr GetFoo() { return gf; }
 engine->RegisterGlobalFunction("FooPtr@ GetFoo()", asFUNCTION(GetFoo), asCALL_CDECL);
 ```
 
 In C++, use just the smart pointers and you'll be safe.
 
-```
+```cpp
 FooPtr f1 = new Foo(); // refcount 1
 SetFoo(f1);            // refcount 2
 FooPtr f2 = GetFoo();  // refcount 3
@@ -71,7 +76,7 @@ SetFoo(nullptr);       // refcount 0 -> deleted.
 In AngelScript, use the native handles.
 
 ```
-Foo@ f1 = new Foo();   // refcount 1
+Foo@ f1 = Foo();       // refcount 1
 SetFoo(f1);            // refcount 2
 Foo@ f2 = GetFoo();    // refcount 3
 @f2 = null;            // refcount 2
@@ -81,36 +86,15 @@ SetFoo(null);          // refcount 0 -> deleted.
 
 ## How it works
 
-This part explains the less obvious bits of AngelScript mechanics.
+AngelScript automatically increases refcount when passing pointers to application
+and expects the application to increase refcount when passing pointers to AngelScript.
+See http://www.angelcode.com/angelscript/sdk/docs/manual/doc_obj_handle.html#doc_obj_handle_3
 
-### How the AngelScript refcounting works
-
- Intuitively, you would call AddRef() every time you obtain a raw pointer to the object, 
- i.e. when creating a new object or retrieving one from script engine. Well, don't.
- 
- * New objects have refcount initialized to 1.
-   You must call Release() to dispose of it, but don't call AddRef() unless you're creating additional pointers.
- * When passing the object as parameter from script to C++ function, the refcount is already incremented by the script engine.
-   If you don't store the pointer, you must call Release() before the function returns.
- * When passing the object from C++ to script, you must increase the refcount yourself.
- 
-Documentation: 
-   https://www.angelcode.com/angelscript/sdk/docs/manual/doc_as_vs_cpp_types.html#doc_as_vs_cpp_types_3
-   https://www.angelcode.com/angelscript/sdk/docs/manual/doc_obj_handle.html#doc_obj_handle_3
-   
-### How RefCountingObject fits into it
-
-RefCountingObject just implements the essential `AddRef()` and `Release()` functions needed by reference types:
-https://www.angelcode.com/angelscript/sdk/docs/manual/doc_reg_basicref.html
-
-RefCountingObjectPtr, for the most part, does the typical smart pointer scheme:
-when created, add ref; when deleted, remove ref.
-
-To prevent breaking the refcount, constructing RefCountingObjectPtr
-from raw pointer is prevented and the programmer must write this:
-```
-FooPtr foo_ptr = FooPtr::Bind(new Foo()); // Do NOT bind the same object twice!
-```
-Assignment within AngelScript engine is handled by wrapper interface, not available from C++.
-
+Across AngelScript documentation, the object constructor always pre-assigns refcount to 1,
+but that would complicate using a smart pointer in C++. Thus, `RefCountingObject` leaves
+the initial refcount at 0 and leaves it to either `RefCountingObjectPtr` (when constructing in C++)
+or the user-defined factory function (when constructing in AngelScript) to increase it.
+The factory function can either explicitly call `AddRef()`
+or use the "auto handle" syntax `@+` which takes care of it automatically,
+see http://www.angelcode.com/angelscript/sdk/docs/manual/doc_obj_handle.html#doc_obj_handle_4
   

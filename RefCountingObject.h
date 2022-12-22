@@ -12,7 +12,7 @@
 #   define RefCoutingObject_DEBUGTRACE()
 #endif
 
-#if !defined(RefCountingObjectPtr_ASSERT)
+#if !defined(RefCountingObject_ASSERT)
 #   include <cassert>
 #   define RefCountingObject_ASSERT(_Expr_) assert(_Expr_)
 #endif
@@ -63,7 +63,7 @@ public:
         END_AS_NAMESPACE
     }
 
-    int m_refcount = 1; // Initial refcount for any angelscript object.
+    int m_refcount = 0;
 };
 
 /*
