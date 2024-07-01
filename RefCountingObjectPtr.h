@@ -15,6 +15,10 @@
 #   define RefCoutingObjectPtr_DEBUGTRACE(_Expr)
 #endif
 
+#if !defined(RefCoutingObjectPtr_DEBUGTRACE_STATIC)
+#   define RefCoutingObjectPtr_DEBUGTRACE_STATIC(_Expr)
+#endif
+
 #if !defined(RefCountingObjectPtr_ASSERT)
 #   include <cassert>
 #   define RefCountingObjectPtr_ASSERT(_Expr_) assert(_Expr_)
@@ -86,7 +90,9 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIE
     const size_t DECLBUF_MAX = 300;
     char decl_buf[DECLBUF_MAX];
 
-    BEGIN_AS_NAMESPACE
+#if defined(AS_USE_NAMESPACE)
+    using namespace AngelScript;
+#endif
 
     // With C++11 it is possible to use asGetTypeTraits to automatically determine the flags that represent the C++ class
     r = engine->RegisterObjectType(handle_name, sizeof(RefCountingObjectPtr), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<RefCountingObjectPtr>()); RefCountingObjectPtr_ASSERT( r >= 0 );
@@ -122,8 +128,6 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIE
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asMETHODPR(RefCountingObjectPtr, operator==, (const RefCountingObjectPtr &) const, bool), asCALL_THISCALL); RefCountingObjectPtr_ASSERT( r >= 0 );
     snprintf(decl_buf, DECLBUF_MAX, "bool opEquals(const %s @&in) const", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpEquals), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
-
-    END_AS_NAMESPACE
 }
 
 
@@ -150,6 +154,8 @@ inline void RefCountingObjectPtr<T>::ConstructRef(RefCountingObjectPtr<T>* self,
 template<class T>
 inline T* RefCountingObjectPtr<T>::OpImplCast(RefCountingObjectPtr<T>* self)
 {
+    RefCoutingObjectPtr_DEBUGTRACE_STATIC(self, (T*)nullptr);
+
     T* ref = self->GetRef();
     if (ref)
         ref->AddRef();

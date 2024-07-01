@@ -51,7 +51,9 @@ public:
     {
         int r;
 
-        BEGIN_AS_NAMESPACE
+#if defined(AS_USE_NAMESPACE)
+        using namespace AngelScript;
+#endif
 
         // Registering the reference type
         r = engine->RegisterObjectType(name, 0, asOBJ_REF); RefCountingObject_ASSERT( r >= 0 );
@@ -59,8 +61,6 @@ public:
         // Registering the addref/release behaviours
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()", asMETHOD(T,AddRef), asCALL_THISCALL); RefCountingObject_ASSERT( r >= 0 );
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); RefCountingObject_ASSERT( r >= 0 );
-
-        END_AS_NAMESPACE
     }
 
     int m_refcount = 0;

@@ -55,9 +55,6 @@ int getch()
 int  RunApplication();
 void ConfigureEngine(asIScriptEngine *engine);
 int  CompileScript(asIScriptEngine *engine);
-void PrintString(string &str);
-void PrintString_Generic(asIScriptGeneric *gen);
-void timeGetTime_Generic(asIScriptGeneric *gen);
 void LineCallback(asIScriptContext *ctx, DWORD *timeOut);
 
 // Function prototypes implemented in "example.cpp"
@@ -82,7 +79,11 @@ void MessageCallback(const asSMessageInfo *msg, void *param)
 	else if( msg->type == asMSGTYPE_INFORMATION ) 
 		type = "INFO";
 
-	printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
+	const size_t BUF_MAX = 1000;
+	char buf[BUF_MAX] = {};
+
+	snprintf(buf, BUF_MAX, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
+	std::cout << buf;
 }
 
 
@@ -104,6 +105,10 @@ int RunApplication()
 	// Configure the script engine with all the functions, 
 	// and variables that the script should be able to use.
 	ConfigureEngine(engine);
+
+	std::cout << COLOR_THEME_MAIN << " ~~~~~~~~~~ Executing Example.cpp ~~~~~~~~~~ " << COLOR_RESET << std::endl;
+	ExampleCpp(engine);
+	std::cout << COLOR_THEME_MAIN << " ~~~~~~~~~~ C++ finished ~~~~~~~~~~ " << COLOR_RESET << std::endl;
 	
 	// Compile the script code
 	r = CompileScript(engine);
@@ -166,10 +171,9 @@ int RunApplication()
 	timeOut = timeGetTime() + 2000;
 
 	// Execute the function
-	std::cout << "Executing the script." << std::endl;
-	std::cout << "---" << std::endl;
+	std::cout << COLOR_THEME_MAIN << " ~~~~~~~~~~ Executing Example.as ~~~~~~~~~~ " << COLOR_RESET << std::endl;
 	r = ctx->Execute();
-	std::cout << "---" << std::endl;
+	std::cout << COLOR_THEME_MAIN << " ~~~~~~~~~~ Script finished ~~~~~~~~~~ " << COLOR_RESET << std::endl;
 	if( r != asEXECUTION_FINISHED )
 	{
 		// The execution didn't finish as we had planned. Determine why.
@@ -209,23 +213,17 @@ void ConfigureEngine(asIScriptEngine *engine)
 	// on how to register a custom string type, and other object types.
 	RegisterStdString(engine);
 
-	if( !strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") )
-	{
-		// Register the functions that the scripts will be allowed to use.
-		// Note how the return code is validated with an assert(). This helps
-		// us discover where a problem occurs, and doesn't pollute the code
-		// with a lot of if's. If an error occurs in release mode it will
-		// be caught when a script is being built, so it is not necessary
-		// to do the verification here as well.
-		r = engine->RegisterGlobalFunction("void Print(string &in)", asFUNCTION(PrintString), asCALL_CDECL); assert( r >= 0 );
-		r = engine->RegisterGlobalFunction("uint GetSystemTime()", asFUNCTION(timeGetTime), asCALL_STDCALL); assert( r >= 0 );
-	}
-	else
-	{
-		// Notice how the registration is almost identical to the above. 
-		r = engine->RegisterGlobalFunction("void Print(string &in)", asFUNCTION(PrintString_Generic), asCALL_GENERIC); assert( r >= 0 );
-		r = engine->RegisterGlobalFunction("uint GetSystemTime()", asFUNCTION(timeGetTime_Generic), asCALL_GENERIC); assert( r >= 0 );
-	}
+
+	// Register the functions that the scripts will be allowed to use.
+	// Note how the return code is validated with an assert(). This helps
+	// us discover where a problem occurs, and doesn't pollute the code
+	// with a lot of if's. If an error occurs in release mode it will
+	// be caught when a script is being built, so it is not necessary
+	// to do the verification here as well.
+	r = engine->RegisterGlobalFunction("void Print(const string &in)", asFUNCTION(PrintString), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterGlobalFunction("uint GetSystemTime()", asFUNCTION(timeGetTime), asCALL_STDCALL); assert( r >= 0 );
+	
+
 
 
 	// It is possible to register the functions, properties, and types in 
@@ -235,7 +233,7 @@ void ConfigureEngine(asIScriptEngine *engine)
 	// the engine, so that the engine configuration could be changed 
 	// without having to recompile all the scripts.
 
-	ExampleCpp(engine);
+	
 }
 
 int CompileScript(asIScriptEngine *engine)
@@ -320,21 +318,5 @@ void LineCallback(asIScriptContext *ctx, DWORD *timeOut)
 	// time, by simply calling Execute() again.
 }
 
-// Function implementation with native calling convention
-void PrintString(string &str)
-{
-	std::cout << str;
-}
 
-// Function implementation with generic script interface
-void PrintString_Generic(asIScriptGeneric *gen)
-{
-	string *str = (string*)gen->GetArgAddress(0);
-	std::cout << *str;
-}
 
-// Function wrapper is needed when native calling conventions are not supported
-void timeGetTime_Generic(asIScriptGeneric *gen)
-{
-	gen->SetReturnDWord(timeGetTime());
-}

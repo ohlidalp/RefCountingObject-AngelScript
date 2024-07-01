@@ -11,13 +11,13 @@
 class Horse: public RefCountingObject<Horse>
 {
 public:
-    void Neigh() { std::cout << this << ": neigh!" << std::endl; }
+    void Neigh() { std::cout << COLOR_THEME_OBJ << this << ": neigh!"<< COLOR_RESET <<  std::endl; }
 };
 
 class Parrot: public RefCountingObject<Parrot>
 {
 public:
-    void Chirp() { std::cout << this <<": chirp!" << std::endl; }
+    void Chirp() { std::cout << COLOR_THEME_OBJ << this <<": chirp!"<< COLOR_RESET << std::endl; }
 };
 
 typedef RefCountingObjectPtr<Horse> HorsePtr;
@@ -40,11 +40,11 @@ static ParrotPtr g_aviary;
 
 void PutToStable(HorsePtr horse)
 {
-    std::cout << __FUNCTION__ << ": called with '" << horse.GetRef() << "'"  << std::endl;
+    std::cout << COLOR_THEME_CPP << __FUNCTION__ << ": called with '" << horse.GetRef() << "'" << COLOR_RESET << std::endl;
 
     if (horse != nullptr && g_stable != nullptr)
     {
-        std::cout << __FUNCTION__ << ": occupied! discarding horse." << std::endl;
+        std::cout << COLOR_THEME_CPP << __FUNCTION__ << ": occupied! discarding horse."<< COLOR_RESET << std::endl;
         return;
     }
 
@@ -53,18 +53,18 @@ void PutToStable(HorsePtr horse)
 
 HorsePtr FetchFromStable()
 {
-    std::cout << __FUNCTION__ << " called"  << std::endl;
+    std::cout << COLOR_THEME_CPP << __FUNCTION__ << " called" << COLOR_RESET << std::endl;
 
     return g_stable;
 }
 
 void PutToAviary(ParrotPtr parrot)
 {
-    std::cout << __FUNCTION__ << " called with '" << parrot.GetRef() << "'" << std::endl;
+    std::cout << COLOR_THEME_CPP << __FUNCTION__ << " called with '" << parrot.GetRef() << "'" << COLOR_RESET<< std::endl;
 
     if (parrot != nullptr && g_aviary != nullptr)
     {
-        std::cout << "PutToAviary(): occupied! discarding parrot." << std::endl;
+        std::cout << COLOR_THEME_CPP << "PutToAviary(): occupied! discarding parrot." << COLOR_RESET<< std::endl;
         return;
     }
 
@@ -73,14 +73,14 @@ void PutToAviary(ParrotPtr parrot)
 
 ParrotPtr FetchFromAviary()
 {
-    std::cout << __FUNCTION__ << " called"  << std::endl;
+    std::cout << COLOR_THEME_CPP << __FUNCTION__ << " called" << COLOR_RESET << std::endl;
 
     return g_aviary;
 }
 
 HorsePtr ExampleCppFunctionCall(HorsePtr argPtr)
 {
-    std::cout << "TestHorseFunctionCall() returning" << std::endl;
+    std::cout << COLOR_THEME_CPP << __FUNCTION__ << " returning" << COLOR_RESET << std::endl;
     return argPtr;
 }
 
@@ -88,6 +88,8 @@ HorsePtr ExampleCppFunctionCall(HorsePtr argPtr)
 
 void ExampleCpp(asIScriptEngine *engine)
 {
+    PrintString("ExampleCpp(): ^ global vars were constructed\n");
+
     int r;
 
     // -- Horse --
@@ -109,7 +111,7 @@ void ExampleCpp(asIScriptEngine *engine)
     // Registering the factory behaviour (using 'auto handle' syntax)
     r = engine->RegisterObjectBehaviour("Parrot", asBEHAVE_FACTORY, "Parrot@+ f()", asFUNCTION(ParrotFactory), asCALL_CDECL); assert( r >= 0 );
     // Register handle type
-    HorsePtr::RegisterRefCountingObjectPtr(engine, "ParrotPtr", "Parrot");
+    ParrotPtr::RegisterRefCountingObjectPtr(engine, "ParrotPtr", "Parrot");
     // Registering example interface
     r = engine->RegisterGlobalFunction("void PutToAviary(ParrotPtr@ h)", asFUNCTION(PutToAviary), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("ParrotPtr@ FetchFromAviary()", asFUNCTION(FetchFromAviary), asCALL_CDECL); assert( r >= 0 );
@@ -117,29 +119,29 @@ void ExampleCpp(asIScriptEngine *engine)
     // Test horse interface from C++
     std::vector<HorsePtr> horses;
 
-    std::cout << "# ExampleCpp(): construct" << std::endl;
+    PrintString("ExampleCpp(): construct\n");
     HorsePtr ptr1 = new Horse(); // "Artax"
-    std::cout << "# ExampleCpp(): add ref" << std::endl;
+    PrintString("ExampleCpp(): add ref\n");
     HorsePtr ptr2 = ptr1;
-    std::cout << "# ExampleCpp: vector push" << std::endl;
+    PrintString("ExampleCpp: vector push\n");
     horses.push_back(ptr1);
-    std::cout << "# ExampleCpp(): release ref" << std::endl;
+    PrintString("ExampleCpp(): release ref\n");
     ptr2 = nullptr;
-    std::cout << "# ExampleCpp(): vector pop" << std::endl;
+    PrintString("ExampleCpp(): vector pop\n");
     horses.pop_back();
-    std::cout << "# ExampleCpp(): function call" << std::endl;
+    PrintString("ExampleCpp(): function call\n");
     ptr1 = ExampleCppFunctionCall(ptr1);
-    std::cout << "# ExampleCpp(): put to stable" << std::endl;
+    PrintString("ExampleCpp(): put to stable\n");
     PutToStable(ptr1);
-    std::cout << "# ExampleCpp(): delete local ref" << std::endl;
+    PrintString("ExampleCpp(): delete local ref\n");
     ptr1 = nullptr;
-    std::cout << "# ExampleCpp(): fetch from stable" << std::endl;
+    PrintString("ExampleCpp(): fetch from stable\n");
     ptr1 = FetchFromStable();
-    std::cout << "# ExampleCpp(): dump from stable" << std::endl;
+    PrintString("ExampleCpp(): dump from stable\n");
     PutToStable(nullptr);
-    std::cout << "# ExampleCpp(): create second object, assign to existing null handle" << std::endl;
+    PrintString("ExampleCpp(): create second object, assign to existing null handle\n");
     ptr2 = new Horse(); // "Gunpowder"
-    std::cout << "# ExampleCpp(): release ref" << std::endl;
+    PrintString("ExampleCpp(): release ref\n");
     ptr2 = nullptr;
-    std::cout << "# ExampleCpp(): 1 ref goes out of scope, object will be deleted" << std::endl;
+    PrintString("ExampleCpp(): 1 ref goes out of scope, object will be deleted\n");
 }

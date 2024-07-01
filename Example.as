@@ -16,7 +16,7 @@ void NativePtrTest()
     @ref3 = null;
     @ref2 = null;
     
-    Print("# 2 ref goes out of scope - object will be deleted\n");
+    Print("# 1 ref goes out of scope - object will be deleted\n");
     // ref1
 }
 
@@ -126,8 +126,11 @@ void AppInterfaceCustomizedPtrTest()
     
     Print("# putting unreferenced horse to stable by explicitly constructing customized handle\n");
     PutToStable(HorsePtr(Horse())); // "Fru-Fru"
+    
+    Print("# fetch from stable, use GetHandle() to create anonymous native handle, and invoke method\n");
+    FetchFromStable().GetHandle().Neigh();
 
-    Print("# fetching horse back from stable to customized handle\n");
+    Print("# fetching horse back from stable as customized handle, and assigning to customized handle\n");
     @ho = FetchFromStable();
     
     Print("# impicitly cast customized handle (from stable) to native handle\n");
